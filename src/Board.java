@@ -5,6 +5,7 @@ import java.util.*;
 
 public class Board {
     int intSqScale = 40;
+    int inttestnothing = 0;
     JButton[][] btnList2d = new JButton[8][8];
     static boolean[][] filledList2D = new boolean[8][8];
 
