@@ -39,10 +39,10 @@ class Pawn extends Piece{
 //            }
 //        }
 
-        JLabel labelIcon = new JLabel();
+        JLabel labelIcon;
         if (color) {
             labelIcon = new JLabel(imgSmoother(imgPawnW));
-        } else if (!color) {
+        } else {
             labelIcon = new JLabel(imgSmoother(imgPawnB));
         }
         labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);

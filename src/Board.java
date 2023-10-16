@@ -10,6 +10,9 @@ public class Board {
     static boolean[][] filledList2D = new boolean[8][8];
 
     public static Map<Pair<Integer, Integer>, Piece> pieceMap = new HashMap<>();
+    private static boolean isBetween(int a, int b, int c) {
+        return a < b && b < c || c < b && b < a;
+    }
     JFrame f = new JFrame();
     public static boolean moveAttempt = false;
     static ImageIcon imgBrown = new ImageIcon("C:\\Users\\awesome22\\Downloads\\brownsquare.png");
@@ -54,56 +57,71 @@ public class Board {
             //These are variables that represent past coordinates of squares that do have pieces. Used to check line of sight.
             ArrayList<Integer> relCheckX = new ArrayList<>();
             ArrayList<Integer> relCheckY = new ArrayList<>();
-            for (int i = 0; i <= clickPiece.getMovementAbs().size(); i++) {
-                //Adds the spots relative to the current location to
+            System.out.println(x+", "+y);
 
+            //Cycles through every clickPiece movement value
+            for (int i = 0; i < clickPiece.getMovementAbs().size(); i++) {
+
+                //Adds the spots relative to the current location to
+                //clickPiece is where was clicked. getMovementAbs gets an array of where that piece goes. get(i) shuffles through every piece in the array. getX/Y get the individual coord points.
+                //Adding x onto the end adds the current coordinate spot to the movement system which is relative to the piece. this makes it relative to the board instead of the piece.
                 int xView = clickPiece.getMovementAbs().get(i).getX() + x;
                 int yView = clickPiece.getMovementAbs().get(i).getY() + y;
+                int xViewRel = xView-x;
+                int yViewRel = yView-y;
                 Piece viewedPiece = pieceMap.get(new Pair<>(xView, yView));
                 IntPair relAdd = new IntPair(xView,yView);
                 boolean addCheck = true;
 
                 //Checks if the tile is on the board
                 if(xView <= 7 && xView >= 0 && yView >= 0 && yView <= 7) {
-                    //Checks if the piece exists
+                    //Checks if the viewedPiece's coords (the one that is on the current cycle in the array's coord list made absolute) has a piece there (if viwedPiece exists)
                     if (viewedPiece != null) {
-                        relCheckX.add(xView);
-                        relCheckY.add(yView);
-                        //Checks if the piece is the same color as it. Does not add the piece to the squares if it is.
+                        //Runs if the coordinate xView,yView is occupied
+                        relCheckX.add(xViewRel);
+                        relCheckY.add(yViewRel);
+                        //Checks if the piece is the same color as it. Does not add the piece to the target spaces if it is.
                         if (clickPiece.color == viewedPiece.color){
                             addCheck = false;
+                            System.out.println("overlap");
                         }
                     }
-                    //Checking if the piece is beyond another piece that would block line of sight. I look at the value sign, then I compare it to the blocker piece
+                    //Check for line of sight blockage
                     else {
-                        //Checks direction of the past logged relCheck.
-                        if (relCheckX.get(i) > 0){
-                            if (xView > relCheckX.get(i)){
-                                addCheck = false;
-                            }
+                        //REPLACE THE 3 WITH THE RELCHECKX and THE 6 WITH RELCHECKY. Also make the for loop work. And make this take priority over the viewedPiece != null.
+                        //for (int j = 0; j < relCheckX.size(); j++) {
+
+
+                        if (x == xView && 3 == x && ((6 > y && 6 < yView) || (6 < y && 6 > yView))) {
+                            addCheck= false; // Obstacle is in the queen's vertical path
+                            //break;
                         }
-                        else if (relCheckX.get(i) < 0){
-                            if (xView < relCheckX.get(i)){
-                                addCheck = false;
-                            }
+                        if (y == yView && 6 == y && ((3 > x && 3 < xView) || (3 < x && 3 > xView))) {
+                            addCheck= false; // Obstacle is in the queen's horizontal path
+                            //break;
                         }
-                        else if (relCheckY.get(i) > 0){
-                            if (yView > relCheckY.get(i)){
-                                addCheck = false;
-                            }
+                        if (Math.abs(x - xView) == Math.abs(y - yView) && Math.abs(x - 3) == Math.abs(y - 6) && Math.abs(xView - 3) == Math.abs(yView - 6)) {
+                            addCheck= false; // Obstacle is in the queen's diagonal path
+                            //break;
                         }
-                        else if (relCheckY.get(i) < 0){
-                            if (yView < relCheckY.get(i)){
-                                addCheck = false;
-                            }
-                        }
+                        //}
                     }
+
+
+
+                }
+                else{
+                    addCheck = false;
                 }
                 //Following the principal that pieces move in one general direction, if xRelAdd is negative and relCheckX is negative, compare them(notsurehow). Repeat for y. Log both.
                 //If either x or y are greater than or equal to their logged "relCheck" counterparts, don't add it to the movementRel.
                 //Make exception rule for this to exclude pieces that move uniquely(include knights base). for knights, just check if the square is occupied and if it's an enemy. then ur good to go.
                 if (addCheck) {
+                    //if addCheck is true, then this means add the square
+                    clickPiece.getMovementRel().clear();
                     clickPiece.getMovementRel().add(relAdd);
+                    clickPiece.paintRelCoords();
+                    System.out.println("painted");
                 }
 
             }
@@ -113,6 +131,7 @@ public class Board {
             //clickPiece.paintRelCoords();
         }
         else {
+            //Happens when clickPiece, the tile clicked, has no piece.
             System.out.println("Blank Space");
         }
         //Conceptually: I am trying to know which button has been clicked, what piece is on that button, then check the movement of that piece
@@ -176,7 +195,7 @@ public class Board {
                     filledList2D[i][j] = false;
                     mainPane.add(btnList2d[i][j], JLayeredPane.DEFAULT_LAYER);
                 }
-                else if ((j % 2 == 0) && (i % 2 != 0)) {
+                else if (j % 2 == 0) {
                     final int index = i;
                     final int indey = j;
                     btnList2d[i][j] = new JButton(imgBrown);
@@ -185,7 +204,7 @@ public class Board {
                     btnList2d[i][j].addActionListener(e -> buttonClick(index,indey));
                     filledList2D[i][j] = false;
                     mainPane.add(btnList2d[i][j], JLayeredPane.DEFAULT_LAYER);
-                } else if ((j % 2 != 0) && (i % 2 == 0)) {
+                } else {
                     final int index = i;
                     final int indey = j;
                     btnList2d[i][j] = new JButton(imgBrown);

@@ -27,10 +27,10 @@ public class Knight extends Piece{
         getMovementRel().add(new IntPair(1, -2));
         getMovementRel().add(new IntPair(2, -1));
 
-        JLabel labelIcon = new JLabel();
+        JLabel labelIcon;
         if (color) {
             labelIcon = new JLabel(imgSmoother(imgKnightW));
-        } else if (!color) {
+        } else {
             labelIcon = new JLabel(imgSmoother(imgKnightB));
         }
         labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
