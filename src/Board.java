@@ -14,6 +14,7 @@ public class Board {
         return a < b && b < c || c < b && b < a;
     }
     JFrame f = new JFrame();
+    public static boolean newBoo = false;
     public static boolean moveAttempt = false;
     static ImageIcon imgBrown = new ImageIcon("C:\\Users\\awesome22\\Downloads\\brownsquare.png");
     static ImageIcon imgBeige = new ImageIcon("C:\\Users\\awesome22\\Downloads\\beigesquare.png");
