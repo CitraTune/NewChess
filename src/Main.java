@@ -16,7 +16,7 @@ public class Main {
     public static void main(String[] args) {
         new Main();
 //        Scanner myInput = new Scanner( System.in);
-//        //Prompts user
+//        Prompts user
 //        System.out.print( "Type a chess piece to access the coordinates" );
 //        //The variable that represents the user's input
 //        String userInput = myInput.next();
