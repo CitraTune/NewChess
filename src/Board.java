@@ -46,6 +46,7 @@ public class Board {
         //Pair clickpair = new Pair<>(x,y);
 
 
+
         Piece clickPiece = pieceMap.get(new Pair<>(x,y));
         //Following code is when a button is clicked and if there is a piece on it. clickPiece references that piece.
         if (clickPiece != null) {
