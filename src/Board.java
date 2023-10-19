@@ -2,13 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
-
 public class Board {
     int intSqScale = 40;
-
     JButton[][] btnList2d = new JButton[8][8];
     static boolean[][] filledList2D = new boolean[8][8];
-
     public static Map<Pair<Integer, Integer>, Piece> pieceMap = new HashMap<>();
     private static boolean isBetween(int a, int b, int c) {
         return a < b && b < c || c < b && b < a;
@@ -31,6 +28,7 @@ public class Board {
     static ImageIcon imgBeige = new ImageIcon("C:\\Users\\awesome22\\Downloads\\beigesquare.png");
     static ImageIcon imgRed = new ImageIcon("C:\\Users\\awesome22\\Downloads\\transquarantRed.png");
     public static JLayeredPane mainPane = new JLayeredPane();
+
     //Honestly the code below is copied. It just makes a transparent square. Too much effort for something so simple
     private void makeIconTransparent(ImageIcon icon) {
         // Get the image from the ImageIcon
@@ -50,9 +48,6 @@ public class Board {
         icon.setImage(bufferedImage);
     }
 
-    //NEXT BIG STEP: MAKE A SYSTEM TO READ ANY SPOT ON THE BOARD AND IDENTIFY WHICH PIECE IS THERE
-    //Do Hashmap.get(x).get(y); This should be a Piece Object, return it.
-
     //This code runs when a square is clicked. It takes the x and y, stored inside that square.
     static void buttonClick(int x, int y) {
         if (!moveAttempt) {
@@ -67,7 +62,6 @@ public class Board {
                 //These are variables that represent past coordinates of squares that do have pieces. Used to check line of sight.
                 ArrayList<Integer> relCheckX = new ArrayList<>();
                 ArrayList<Integer> relCheckY = new ArrayList<>();
-                ArrayList<IntPair> relCheckPairOverlap = new ArrayList<>();
                 boolean addCheck = false;
                 System.out.println(x + ", " + y);
 
@@ -98,7 +92,6 @@ public class Board {
                             System.out.println("six numbers compared: x,y,vx,vy,bx,by " + x + "," + y + "," + xView + "," + yView + "," + relCheckX.get(j) + "," + relCheckY.get(j) + "\n isBlocking path is " + isBlockingPath(x, y, xView, yView, relCheckX.get(j), relCheckY.get(j)));
                             if (isBlockingPath(x, y, xView, yView, relCheckX.get(j), relCheckY.get(j))) {
                                 //Make it so we are aware xView and yView coordinates are blocked.
-                                relCheckPairOverlap.add(new IntPair(xView, yView));
                                 //Problem: AbsCoords of the piece exist, and rel's exist as well.
                                 //However, the goal is to add the abs ones minus the rel ones that face overlap
                                 //This is not easy because it's slow to check every abs one if it's an overlap before adding it
@@ -107,8 +100,8 @@ public class Board {
                                 //Although this one seems the most viable as you could put a bunch of && statements and run the isBlockingPaths all at once and drop the for loop and just use increments of relCheckX.size.
                                 //Above idea kinda makes sense kinda doesn't.
 
-                                //My plan of attack. For every spot run every known blocker by it.
-                                //If it is successful for all of these then return yes for that spot and add it to the movementRel
+                                //My plan of attack. For every spot check it with every known blocker.
+                                //If it is successful for all blockers then return yes for that spot and add it to the movementRel. Once all spots (on board) are done, paint.
                                 //Do this by having a method, a for loop, and if statement inside that triggers if isBlockingPath is ever true. this statement returns false if triggered.
                                 //for loop goes through every relCheck. call the method with the inputs the arraylists of blockers, the current position, and the target spot
                                 //then if the for loop completes, the method returns a true and we add that to the list.
@@ -244,8 +237,5 @@ public class Board {
         pieceMap.put(new Pair<>(4, 0), kingB);
         Queen queenB = new Queen(3, 0, false, "queenB");
         pieceMap.put(new Pair<>(3, 0), queenB);
-
     }
-
-
 }
