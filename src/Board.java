@@ -1,11 +1,15 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Array;
 import java.util.*;
+
 public class Board {
     int intSqScale = 40;
+
     JButton[][] btnList2d = new JButton[8][8];
     static boolean[][] filledList2D = new boolean[8][8];
+
     public static Map<Pair<Integer, Integer>, Piece> pieceMap = new HashMap<>();
     private static boolean isBetween(int a, int b, int c) {
         return a < b && b < c || c < b && b < a;
@@ -22,13 +26,25 @@ public class Board {
                     Math.abs(queenX - blockX) == Math.abs(targetX - blockX);
         }
     }
+    private static boolean canMoveHere(int x, int y, int xView, int yView, ArrayList<Integer> relCheckX, ArrayList<Integer> relCheckY){
+        //For every spot run every known blocker by it.
+        for (int j = 0; j < relCheckX.size(); j++) {
+            if (isBlockingPath(x, y, xView, yView, relCheckX.get(j), relCheckY.get(j))){
+               return false;
+            }
+        }
+        return true;
+        //If it is successful for all of these then return yes for that spot and add it to the movementRel
+        //Do this by having a method, a for loop, and if statement inside that triggers if isBlockingPath is ever true. this statement returns false if triggered.
+        //for loop goes through every relCheck. call the method with the inputs the arraylists of blockers, the current position, and the target spot
+        //then if the for loop completes, the method returns a true, and we add that to the list.
+    }
     JFrame f = new JFrame();
     public static boolean moveAttempt = false;
     static ImageIcon imgBrown = new ImageIcon("C:\\Users\\awesome22\\Downloads\\brownsquare.png");
     static ImageIcon imgBeige = new ImageIcon("C:\\Users\\awesome22\\Downloads\\beigesquare.png");
     static ImageIcon imgRed = new ImageIcon("C:\\Users\\awesome22\\Downloads\\transquarantRed.png");
     public static JLayeredPane mainPane = new JLayeredPane();
-
     //Honestly the code below is copied. It just makes a transparent square. Too much effort for something so simple
     private void makeIconTransparent(ImageIcon icon) {
         // Get the image from the ImageIcon
@@ -48,6 +64,9 @@ public class Board {
         icon.setImage(bufferedImage);
     }
 
+    //NEXT BIG STEP: MAKE A SYSTEM TO READ ANY SPOT ON THE BOARD AND IDENTIFY WHICH PIECE IS THERE
+    //Do Hashmap.get(x).get(y); This should be a Piece Object, return it.
+
     //This code runs when a square is clicked. It takes the x and y, stored inside that square.
     static void buttonClick(int x, int y) {
         if (!moveAttempt) {
@@ -62,6 +81,7 @@ public class Board {
                 //These are variables that represent past coordinates of squares that do have pieces. Used to check line of sight.
                 ArrayList<Integer> relCheckX = new ArrayList<>();
                 ArrayList<Integer> relCheckY = new ArrayList<>();
+                ArrayList<IntPair> relCheckPairOverlap = new ArrayList<>();
                 boolean addCheck = false;
                 System.out.println(x + ", " + y);
 
@@ -87,42 +107,13 @@ public class Board {
                     int xView = clickPiece.getMovementAbs().get(i).getX() + x;
                     int yView = clickPiece.getMovementAbs().get(i).getY() + y;
                     if (xView <= 7 && xView >= 0 && yView >= 0 && yView <= 7) {
-                        System.out.println("ran at " + xView + "," + yView);
-                        for (int j = 0; j < relCheckX.size(); j++) {
-                            System.out.println("six numbers compared: x,y,vx,vy,bx,by " + x + "," + y + "," + xView + "," + yView + "," + relCheckX.get(j) + "," + relCheckY.get(j) + "\n isBlocking path is " + isBlockingPath(x, y, xView, yView, relCheckX.get(j), relCheckY.get(j)));
-                            if (isBlockingPath(x, y, xView, yView, relCheckX.get(j), relCheckY.get(j))) {
+                        if (canMoveHere(x, y, xView, yView, relCheckX, relCheckY)) {
                                 //Make it so we are aware xView and yView coordinates are blocked.
-                                //Problem: AbsCoords of the piece exist, and rel's exist as well.
-                                //However, the goal is to add the abs ones minus the rel ones that face overlap
-                                //This is not easy because it's slow to check every abs one if it's an overlap before adding it
-                                //And you can't just subtract the intpair from the array of intpairs without polling
-                                //And using all xViews that don't get caught by isBlockingPath results in xViews that might get past on other isBlockingPath runs
-                                //Although this one seems the most viable as you could put a bunch of && statements and run the isBlockingPaths all at once and drop the for loop and just use increments of relCheckX.size.
-                                //Above idea kinda makes sense kinda doesn't.
-
-                                //My plan of attack. For every spot check it with every known blocker.
-                                //If it is successful for all blockers then return yes for that spot and add it to the movementRel. Once all spots (on board) are done, paint.
-                                //Do this by having a method, a for loop, and if statement inside that triggers if isBlockingPath is ever true. this statement returns false if triggered.
-                                //for loop goes through every relCheck. call the method with the inputs the arraylists of blockers, the current position, and the target spot
-                                //then if the for loop completes, the method returns a true and we add that to the list.
-                            }
-
-                            //Reference for now
-
-//                        movementRel.add(new IntPair(x, y));
-
-//                        if (isBlockingPath(x, y, xView, yView, relCheckX.get(j), relCheckY.get(j))) {
-//                            System.out.println("isBlockingPath is true");
-//                            clickPiece.getMovementRel().clear();
-//                            clickPiece.getMovementRel().add(new IntPair(xView,yView));
-//                            clickPiece.paintRelCoords();
-//                        }
-//                        else{
-//                            System.out.println("isBlockingPath is false");
-//                        }
+                                clickPiece.getMovementRel().add(new IntPair(xView,yView));
                         }
                     }
                 }
+                clickPiece.paintRelCoords();
             } else {
                 //Happens when clickPiece, the tile clicked, has no piece.
                 System.out.println("Blank Space");
@@ -237,5 +228,8 @@ public class Board {
         pieceMap.put(new Pair<>(4, 0), kingB);
         Queen queenB = new Queen(3, 0, false, "queenB");
         pieceMap.put(new Pair<>(3, 0), queenB);
+
     }
+
+
 }
