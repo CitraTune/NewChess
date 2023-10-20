@@ -1,8 +1,24 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.io.IOException;
 
 public class Knight extends Piece{
-    static ImageIcon imgKnightW = new ImageIcon("C:\\Users\\awesome22\\Downloads\\Tabler-icons_chess-knight.svg.png");
-    static ImageIcon imgKnightB = new ImageIcon("C:\\Users\\awesome22\\Downloads\\Tabler-icons_chess-knight-filled.svg.png");
+    static ImageIcon imgKnightW;
+    static {
+        try {
+            imgKnightW = new ImageIcon(ImageIO.read(images.gfras("resources/Tabler-icons_chess-knight.svg.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    static ImageIcon imgKnightB;
+    static {
+        try {
+            imgKnightB = new ImageIcon(ImageIO.read(images.gfras("resources/Tabler-icons_chess-knight-filled.svg.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     public Knight(int xCor, int yCor, boolean color, String name){

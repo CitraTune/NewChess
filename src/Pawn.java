@@ -1,8 +1,24 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.io.IOException;
 
 class Pawn extends Piece{
-    static ImageIcon imgPawnW = new ImageIcon("C:\\Users\\awesome22\\Downloads\\Tabler-icons_chess.svg.png");
-    static ImageIcon imgPawnB = new ImageIcon("C:\\Users\\awesome22\\Downloads\\Tabler-icons_chess-filled.svg.png");
+    static ImageIcon imgPawnW;
+    static {
+        try {
+            imgPawnW = new ImageIcon(ImageIO.read(images.gfras("resources/Tabler-icons_chess.svg.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    static ImageIcon imgPawnB;
+    static {
+        try {
+            imgPawnB = new ImageIcon(ImageIO.read(images.gfras("resources/Tabler-icons_chess-filled.svg.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 

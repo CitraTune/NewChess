@@ -1,6 +1,9 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -26,6 +29,8 @@ public class Board {
                     Math.abs(queenX - blockX) == Math.abs(targetX - blockX);
         }
     }
+
+
     private static boolean canMoveHere(int x, int y, int xView, int yView, ArrayList<Integer> relCheckX, ArrayList<Integer> relCheckY){
         //For every spot run every known blocker by it.
         for (int j = 0; j < relCheckX.size(); j++) {
@@ -41,28 +46,32 @@ public class Board {
     }
     JFrame f = new JFrame();
     public static boolean moveAttempt = false;
-    static ImageIcon imgBrown = new ImageIcon("C:\\Users\\awesome22\\Downloads\\brownsquare.png");
-    static ImageIcon imgBeige = new ImageIcon("C:\\Users\\awesome22\\Downloads\\beigesquare.png");
-    static ImageIcon imgRed = new ImageIcon("C:\\Users\\awesome22\\Downloads\\transquarantRed.png");
-    public static JLayeredPane mainPane = new JLayeredPane();
-    //Honestly the code below is copied. It just makes a transparent square. Too much effort for something so simple
-    private void makeIconTransparent(ImageIcon icon) {
-        // Get the image from the ImageIcon
-        Image image = icon.getImage();
-        // Create a BufferedImage for customizing transparency
-        BufferedImage bufferedImage = new BufferedImage(
-                icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
-        // Create a Graphics2D object to work with the BufferedImage
-        Graphics2D g2d = bufferedImage.createGraphics();
-        // Set the transparency using AlphaComposite
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.5));
-        // Draw the original image onto the BufferedImage
-        g2d.drawImage(image, 0, 0, null);
-        // Dispose of the Graphics2D object
-        g2d.dispose();
-        // Update the ImageIcon with the modified image
-        icon.setImage(bufferedImage);
+    static ImageIcon imgBrown;
+    static {
+        try {
+            imgBrown = new ImageIcon(ImageIO.read(images.gfras("resources/brownsquare.jpg")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+    static ImageIcon imgBeige;
+    static {
+        try {
+            imgBeige = new ImageIcon(ImageIO.read(images.gfras("resources/beigesquare.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    static ImageIcon imgRed;
+    static {
+        try {
+            imgRed = new ImageIcon(ImageIO.read(images.gfras("resources/transquarantRed.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static JLayeredPane mainPane = new JLayeredPane();
+
 
     //NEXT BIG STEP: MAKE A SYSTEM TO READ ANY SPOT ON THE BOARD AND IDENTIFY WHICH PIECE IS THERE
     //Do Hashmap.get(x).get(y); This should be a Piece Object, return it.
@@ -102,14 +111,20 @@ public class Board {
                         //Checks if the piece is the same color as it. Does not add the piece to the target spaces if it is.
                     }
                 }
+                clickPiece.getMovementRel().clear();
                 //Cycles through every movement value with line of sight blockers in mind to register which spots can and cant be moved to.
                 for (int i = 0; i < clickPiece.getMovementAbs().size(); i++) {
                     int xView = clickPiece.getMovementAbs().get(i).getX() + x;
                     int yView = clickPiece.getMovementAbs().get(i).getY() + y;
                     if (xView <= 7 && xView >= 0 && yView >= 0 && yView <= 7) {
+                        //As of now, this lets in the piece if it is on the same spot and is the same color. This should not be true. Add system for that to the method.
                         if (canMoveHere(x, y, xView, yView, relCheckX, relCheckY)) {
                                 //Make it so we are aware xView and yView coordinates are blocked.
                                 clickPiece.getMovementRel().add(new IntPair(xView,yView));
+                                //System.out.println("Spot allowed in: " + xView + "," + yView );
+                        }
+                        else{
+                            //System.out.println("Spot blocked: " + xView + "," + yView );
                         }
                     }
                 }
@@ -118,6 +133,17 @@ public class Board {
                 //Happens when clickPiece, the tile clicked, has no piece.
                 System.out.println("Blank Space");
             }
+        }
+        //make the following statement an else if that works for if we are in the second phase of moving a piece
+        //the if statement should check if the spot clicked is on the list of possibilites.
+        //possibly do a 2 way map for this? or a map that does bool outputs and 2 variable inputs?
+        //Basically, we just want to quickly see if this coordinate is a valid movement.
+        //if it is, then we run a function built in piece that changes the clickPiece position to the x and y of the second clicked one.
+        //this implied we need a way to store original clickPiece when movementAttempt = true. because now we have a new clickPiece. will figure that out in a second.
+        //best current idea is a global variable/alias that just gets swapped out everytime a movementAttempt != true happens.
+        //Also, we need edge cases to deal with unselecting. if a spot isnt on the valid movements, then we dont move the piece but the graphics and stuff are still cleared and the movementAttempt becomes false again.
+        else  {
+
         }
     }
         //Conceptually: I am trying to know which button has been clicked, what piece is on that button, then check the movement of that piece
@@ -130,7 +156,7 @@ public class Board {
 
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         javax.swing.ToolTipManager.sharedInstance().setInitialDelay(20);
-        makeIconTransparent(imgRed);
+        images.makeIconTransparent(imgRed);
 
         for (int j = 0; j < 8; j++) {
             for (int i = 0; i < 8; i++) {

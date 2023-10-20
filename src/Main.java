@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
-    static ImageIcon customIcon = new ImageIcon("C:\\Users\\jkeating2025\\Documents\\sillycat.png");
+    static ImageIcon customIcon = new ImageIcon("C:\\Users\\awesome22\\IdeaProjects\\NewChess\\src\\Images\\beigesquare.png");
 
 
     public Main(){

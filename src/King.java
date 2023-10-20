@@ -1,10 +1,27 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class King extends Piece{
-    static ImageIcon imgKingW = new ImageIcon("C:\\Users\\awesome22\\Downloads\\Tabler-icons_chess-king.svg.png");
-    static ImageIcon imgKingB = new ImageIcon("C:\\Users\\awesome22\\Downloads\\Tabler-icons_chess-king-filled.svg.png");
+    static ImageIcon imgKingW;
+    static {
+        try {
+            imgKingW = new ImageIcon(ImageIO.read(images.gfras("resources/Tabler-icons_chess-king.svg.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    static ImageIcon imgKingB;
+    static {
+        try {
+            imgKingB = new ImageIcon(ImageIO.read(images.gfras("resources/Tabler-icons_chess-king-filled.svg.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public King(int xCor, int yCor, boolean color, String name) {
         super(xCor, yCor, color, name);

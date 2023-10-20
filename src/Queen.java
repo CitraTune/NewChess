@@ -1,8 +1,25 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.io.IOException;
 
 public class Queen extends Piece{
-    static ImageIcon imgQueenW = new ImageIcon("C:\\Users\\awesome22\\Downloads\\Tabler-icons_chess-queen.svg.png");
-    static ImageIcon imgQueenB = new ImageIcon("C:\\Users\\awesome22\\Downloads\\Tabler-icons_chess-queen-filled.svg.png");
+    static ImageIcon imgQueenW;
+    static {
+        try {
+            imgQueenW = new ImageIcon(ImageIO.read(images.gfras("resources/Tabler-icons_chess-queen.svg.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    static ImageIcon imgQueenB;
+    static {
+        try {
+            imgQueenB = new ImageIcon(ImageIO.read(images.gfras("resources/Tabler-icons_chess-queen-filled.svg.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public Queen(int xCor, int yCor, boolean color, String name) {
         super(xCor, yCor, color, name);

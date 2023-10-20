@@ -1,8 +1,25 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.io.IOException;
 
 public class Rook extends Piece{
-    static ImageIcon imgRookW = new ImageIcon("C:\\Users\\awesome22\\Downloads\\Tabler-icons_chess-rook.svg.png");
-    static ImageIcon imgRookB = new ImageIcon("C:\\Users\\awesome22\\Downloads\\Tabler-icons_chess-rook-filled.svg.png");
+
+    static ImageIcon imgRookW;
+    static {
+        try {
+            imgRookW = new ImageIcon(ImageIO.read(images.gfras("resources/Tabler-icons_chess-rook.svg.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    static ImageIcon imgRookB;
+    static {
+        try {
+            imgRookB = new ImageIcon(ImageIO.read(images.gfras("resources/Tabler-icons_chess-rook-filled.svg.png")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     //Objectname.PaintRelCoords()
