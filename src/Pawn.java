@@ -55,16 +55,14 @@ class Pawn extends Piece{
 //            }
 //        }
 
-        JLabel labelIcon;
+
         if (color) {
             labelIcon = new JLabel(imgSmoother(imgPawnW));
         } else {
             labelIcon = new JLabel(imgSmoother(imgPawnB));
         }
         labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
-        Board.filledList2D[xCor][yCor] = true;
-        JLayeredPane lp = Board.mainPane;
-        lp.add(labelIcon, JLayeredPane.PALETTE_LAYER);
+        Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
     }
 
 }

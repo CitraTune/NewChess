@@ -50,16 +50,14 @@ public class Queen extends Piece{
                 }
             }
         }
-        JLabel labelIcon;
+
         if (color) {
             labelIcon = new JLabel(imgSmoother(imgQueenW));
         } else {
             labelIcon = new JLabel(imgSmoother(imgQueenB));
         }
         labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
-        Board.filledList2D[xCor][yCor] = true;
-        JLayeredPane lp = Board.mainPane;
-        lp.add(labelIcon, JLayeredPane.PALETTE_LAYER);
+        Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
     }
 
 }

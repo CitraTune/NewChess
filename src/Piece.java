@@ -18,6 +18,7 @@ public class Piece {
     int yCor;
     boolean color;
     String name;
+    JLabel labelIcon = new JLabel();
     private List<IntPair> movementAbs = new ArrayList<>();
     private List<IntPair> movementRel = new ArrayList<>();
     public void paintRelCoords() {
@@ -58,16 +59,39 @@ public class Piece {
 
     //True = white, false = black
 
-    public void PieceMove (int xCorNew, int yCorNew, int xCorOld, int yCorOld){
+    public void pieceMove (int xCorNew, int yCorNew){
         //Changes filledList2d the array and make xCorOld and yCorOld be false, then make the xCorNew and yCorNew be true.
         //Changes the object on that square.
+        this.setxCor(xCorNew);
+        this.setyCor(yCorNew);
+        Board.pieceMap.forcePut(new Pair<>(xCorNew, yCorNew), this);
+        labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
+        //Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
     }
+
+    public int getxCor() {
+        return xCor;
+    }
+
+    public void setxCor(int xCor) {
+        this.xCor = xCor;
+    }
+
+    public int getyCor() {
+        return yCor;
+    }
+
+    public void setyCor(int yCor) {
+        this.yCor = yCor;
+    }
+
     public Piece(int xCor, int yCor, boolean color, String name) {
         List<IntPair> movementAbs = new ArrayList<>();
         this.xCor = xCor;
         this.yCor = yCor;
         this.color = color;
         this.name = name;
+        Board.pieceMap.put(new Pair<>(xCor, yCor), this);
     }
 
     public List<IntPair> getMovementAbs() {

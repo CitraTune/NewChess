@@ -34,16 +34,13 @@ public class King extends Piece{
                 }
             }
         }
-        JLabel labelIcon = new JLabel();
         if (color) {
             labelIcon = new JLabel(imgSmoother(imgKingW));
         } else if (!color) {
             labelIcon = new JLabel(imgSmoother(imgKingB));
         }
         labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
-        Board.filledList2D[xCor][yCor] = true;
-        JLayeredPane lp = Board.mainPane;
-        lp.add(labelIcon, JLayeredPane.PALETTE_LAYER);
+        Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
     }
 
 }

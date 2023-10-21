@@ -33,7 +33,6 @@ public class Knight extends Piece{
         getMovementAbs().add(new IntPair(-1, -2));
         getMovementAbs().add(new IntPair(1, -2));
         getMovementAbs().add(new IntPair(2, -1));
-
         getMovementRel().add(new IntPair(2, 1));
         getMovementRel().add(new IntPair(1, 2));
         getMovementRel().add(new IntPair(-1, 2));
@@ -43,16 +42,13 @@ public class Knight extends Piece{
         getMovementRel().add(new IntPair(1, -2));
         getMovementRel().add(new IntPair(2, -1));
 
-        JLabel labelIcon;
         if (color) {
             labelIcon = new JLabel(imgSmoother(imgKnightW));
         } else {
             labelIcon = new JLabel(imgSmoother(imgKnightB));
         }
         labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
-        Board.filledList2D[xCor][yCor] = true;
-        JLayeredPane lp = Board.mainPane;
-        lp.add(labelIcon, JLayeredPane.PALETTE_LAYER);
+        Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
     }
 
 
