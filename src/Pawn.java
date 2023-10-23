@@ -24,14 +24,17 @@ class Pawn extends Piece{
 
     public Pawn(int xCor, int yCor, boolean color, String name) {
         super(xCor, yCor, color, name);
-
-        //Need method that puts the object name first, syntax says pawnW1.getMovement and this is equivalent to the ArrayList of the movement possibilities (Absolute)
-        getMovementAbs().add(new IntPair(0, 1));
-        getMovementAbs().add(new IntPair(0,2));
+        if (!color) {
+            //Need method that puts the object name first, syntax says pawnW1.getMovement and this is equivalent to the ArrayList of the movement possibilities (Absolute)
+            getMovementAbs().add(new IntPair(0, 1));
+            getMovementAbs().add(new IntPair(0, 2));
+        }
+        else{
+            getMovementAbs().add(new IntPair(0, -1));
+            getMovementAbs().add(new IntPair(0, -2));
+        }
 
         //Add system that removes the part from movementAbs when the movement that moves 2 up is selected
-        getMovementRel().add(new IntPair(0, 1));
-        getMovementRel().add(new IntPair(0,2));
 
 
         //Make these checks run everytime the button it is on is clicked.

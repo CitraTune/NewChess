@@ -21,20 +21,27 @@ public class Piece {
     JLabel labelIcon = new JLabel();
     private List<IntPair> movementAbs = new ArrayList<>();
     private List<IntPair> movementRel = new ArrayList<>();
+    private List<JLabel> tranSquares = new ArrayList<>();
     public void paintRelCoords() {
-        for (int i = 0; i < getMovementRel().size(); i++ ){
-            IntPair relPair = getMovementRel().get(i);
-            int relX = relPair.getX();
-            int relY = relPair.getY();
-            JLabel tranPane = new JLabel(imgSmoother(Board.imgRed));
-            //Put in multiple if statements to prevent the program from continuing
-            //Check if space is occupied in piecemap. Check if space contains a piece. Prevent further
-            //checks if it contains a piece. If the piece is an enemy piece, include it.
-            //Check if it is on the board: Do this by checking each square and seeing if relX
-            tranPane.setBounds(40 + relX * 40, 40 + relY * 40, 40, 40);
-            JLayeredPane lp = Board.mainPane;
-            lp.add(tranPane, JLayeredPane.PALETTE_LAYER);
-
+        if (!Board.turn) {
+            for (int i = 0; i < getMovementRel().size(); i++ ){
+                IntPair relPair = getMovementRel().get(i);
+                int relX = relPair.getX();
+                int relY = relPair.getY();
+                tranSquares.add(new JLabel(imgSmoother(Board.imgRed)));
+                tranSquares.get(i).setBounds(40 + relX * 40, 40 - ((relY - 7) * 40), 40, 40);
+                Board.mainPane.add(tranSquares.get(i), JLayeredPane.PALETTE_LAYER);
+            }
+        }
+        else {
+            for (int i = 0; i < getMovementRel().size(); i++) {
+                IntPair relPair = getMovementRel().get(i);
+                int relX = relPair.getX();
+                int relY = relPair.getY();
+                tranSquares.add(new JLabel(imgSmoother(Board.imgRed)));
+                tranSquares.get(i).setBounds(40 + relX * 40, 40 + relY * 40, 40, 40);
+                Board.mainPane.add(tranSquares.get(i), JLayeredPane.PALETTE_LAYER);
+            }
         }
     }
 
@@ -43,16 +50,9 @@ public class Piece {
             IntPair relPair = getMovementRel().get(i);
             int relX = relPair.getX();
             int relY = relPair.getY();
-            JLabel tranPane = new JLabel(imgSmoother(Board.imgRed));
-            //Put in multiple if statements to prevent the program from continuing
-            //Check if space is occupied in piecemap. Check if space contains a piece. Prevent further
-            //checks if it contains a piece. If the piece is an enemy piece, include it.
-            //Check if it is on the board: Do this by checking each square and seeing if relX
-            tranPane.setBounds(40 + relX * 40, 40 + relY * 40, 40, 40);
-
-            JLayeredPane lp = Board.mainPane;
-            lp.add(tranPane, JLayeredPane.PALETTE_LAYER);
-
+            Board.mainPane.remove(tranSquares.get(i));
+            Board.mainPane.revalidate();    // Revalidate the panel
+            Board.mainPane.repaint();       // Repaint the panel
         }
     }
 
@@ -65,8 +65,21 @@ public class Piece {
         this.setxCor(xCorNew);
         this.setyCor(yCorNew);
         Board.pieceMap.forcePut(new Pair<>(xCorNew, yCorNew), this);
-        labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
-        //Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
+        if (!Board.turn) {
+            labelIcon.setBounds(40 + xCor * 40, 40 - ((yCor - 7) * 40), 40, 40);
+        }
+        else{
+            labelIcon.setBounds(40 + xCor * 40, 40 +yCor * 40, 40, 40);
+        }
+        Board.mainPane.revalidate();    // Revalidate the panel
+        Board.mainPane.repaint();       // Repaint the panel
+
+    }
+    public void kill (){
+        Board.mainPane.remove(this.labelIcon); // Remove label2
+        Board.mainPane.revalidate();    // Revalidate the panel
+        Board.mainPane.repaint();       // Repaint the panel
+
     }
 
     public int getxCor() {

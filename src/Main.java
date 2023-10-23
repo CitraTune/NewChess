@@ -1,27 +1,12 @@
-import javax.swing.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-
 public class Main {
-    static ImageIcon customIcon = new ImageIcon("C:\\Users\\awesome22\\IdeaProjects\\NewChess\\src\\Images\\beigesquare.png");
-
-
     public Main(){
         new Board();
-
-
+        new EndTurn();
     }
-
     public static void main(String[] args) {
         new Main();
-//        Scanner myInput = new Scanner( System.in);
-//        Prompts user
-//        System.out.print( "Type a chess piece to access the coordinates" );
-//        //The variable that represents the user's input
-//        String userInput = myInput.next();
-        //Goal here is to print the movement possibilities of the rook. Absolute to its current position
-            //System.out.println(Rook.get(xCor));
+
 
     }
 }
+//Things to add: Make pawns follow pawn rules. Add castling.

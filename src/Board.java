@@ -6,57 +6,108 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 public class Board {
-    int intSqScale = 40;
-
-    JButton[][] btnList2d = new JButton[8][8];
-
+    static int intSqScale = 40;
+    static int movesLeft = 1;
+    static boolean turn = true; //true if it's white's turn, false if it's black's turn.
+    static JButton[][] btnList2d = new JButton[8][8];
     public static BiMap<Pair<Integer, Integer>, Piece> pieceMap = HashBiMap.create();
-    private static boolean isBetween(int a, int b, int c) {
-        return a < b && b < c || c < b && b < a;
-    }
-    private static boolean isBlockingPath(int queenX, int queenY, int targetX, int targetY, int obstacleX, int obstacleY) {
-//        //If it's a knight, nothing blocks the path.
-//        if (type instanceof Knight){
-//            return true;
-//        }
+    private static boolean pathIsBlocked(int queenX, int queenY, int targetX, int targetY, int obstacleX, int obstacleY) {
+        //Returning false means that it is unblocked. Returning true means it is blocked.
+        //Check if the blocking piece is in the path between the piece and the target tile
         if (obstacleY == targetY && obstacleX == targetX) {
-            return true; // Queen or target is blocked by an obstacle
+            return false; //Target is the obstacle. Checks later if its on enemy team or not.
         }
         // Check if the blocking piece is in the path between the queen and the target tile
-        if ((obstacleX == queenX && obstacleY == queenY) || (obstacleX == targetX && obstacleY == targetY)) {
-            return false; // Queen or target is blocked by an obstacle
+        if ((queenX == targetX && queenX == obstacleX) && ((obstacleY > queenY && obstacleY < targetY) || (obstacleY < queenY && obstacleY > targetY))) {
+            return true; // Obstacle is in the queen's vertical path
         }
-        if (queenX == targetX && obstacleX == queenX && ((obstacleY > queenY && obstacleY < targetY) || (obstacleY < queenY && obstacleY > targetY))) {
-            return false; // Obstacle is in the queen's vertical path
+        if ((queenY == targetY && queenY == obstacleY) && ((obstacleX > queenX && obstacleX < targetX) || (obstacleX < queenX && obstacleX > targetX))) {
+            return true; // Obstacle is in the queen's horizontal path
         }
-        if (queenY == targetY && obstacleY == queenY && ((obstacleX > queenX && obstacleX < targetX) || (obstacleX < queenX && obstacleX > targetX))) {
-            return false; // Obstacle is in the queen's horizontal path
-        }
-        if (Math.abs(queenX - targetX) == Math.abs(queenY - targetY) && Math.abs(queenX - obstacleX) == Math.abs(queenY - obstacleY) && Math.abs(targetX - obstacleX) == Math.abs(targetY - obstacleY)) {
-            return false; // Obstacle is in the queen's diagonal path
+        //If target is on the same diagonal as queen
+        if ((Math.abs(queenX - targetX) == Math.abs(queenY - targetY))
+                //If obstacle is on the same diagonal as queen
+                && (Math.abs(queenX - obstacleX) == Math.abs(queenY - obstacleY))) {
+            //Summarized: If all 3 are on the same diagonal
+            if ((queenX < obstacleX && obstacleX < targetX) && (queenY < obstacleY && obstacleY < targetY)){
+                return true; // Obstacle is in the queen's SE diagonal path
+            }
+            if ((queenX > obstacleX && obstacleX > targetX) && (queenY < obstacleY && obstacleY < targetY)){
+                return true; // Obstacle is in the queen's SW diagonal path
+            }
+            if ((queenX > obstacleX && obstacleX > targetX) && (queenY > obstacleY && obstacleY > targetY)){
+                return true; // Obstacle is in the queen's NW diagonal path
+            }
+            //BUG TO FIX. FOR SOME REASON, ON THE NE AND SW PATHS, IT JUST IGNORES BLOCKERS?
+            if ((queenX < obstacleX && obstacleX < targetX) && (queenY > obstacleY && obstacleY > targetY)){
+                return true; // Obstacle is in the queen's NE diagonal path
+            }
+
         }
 
-        return true;
-
+        return false;
     }
-
-
-
-    private static boolean canMoveHere(int x, int y, int xView, int yView, ArrayList<Integer> relCheckX, ArrayList<Integer> relCheckY){
+    private static boolean pathIsUnblockedArray(int x, int y, int xView, int yView, ArrayList<Integer> relCheckX, ArrayList<Integer> relCheckY) {
         //For every spot run every known blocker by it.
+        if (relCheckX.isEmpty()){
+            return true;
+        }
         for (int j = 0; j < relCheckX.size(); j++) {
-            if (!isBlockingPath(x, y, xView, yView, relCheckX.get(j), relCheckY.get(j))){
-               return false;
+            //If there is ever a time when its considered blocked
+            if (pathIsBlocked(x, y, xView, yView, relCheckX.get(j), relCheckY.get(j))) {
+                //then it is blocked.
+                //Returning false means it doesn't get added to the map.
+                return false;
+                //If it makes it here, it repeats. This checks for all blockers.
             }
         }
-
         return true;
-        //If it is successful for all of these then return yes for that spot and add it to the movementRel
-        //Do this by having a method, a for loop, and if statement inside that triggers if isBlockingPath is ever true. this statement returns false if triggered.
-        //for loop goes through every relCheck. call the method with the inputs the arraylists of blockers, the current position, and the target spot
-        //then if the for loop completes, the method returns a true, and we add that to the list.
     }
-    JFrame f = new JFrame();
+    private static boolean canMoveHere(int x, int y){
+        for(int i = 0; i< lastPiece.getMovementRel().size(); i++) {
+            IntPair relPair = lastPiece.getMovementRel().get(i);
+            int relX = relPair.getX();
+            int relY = relPair.getY();
+            if (x == relX && y == relY) {
+                return true;
+            }
+        }
+    return false;
+    }
+    static void boardFlip(){
+        //Need to take every y value, make it negative, then add 8.
+        Collection<Piece> pieces = pieceMap.values();
+        movesLeft++;
+        if (turn) {
+            // Iterate through the values and print them
+            for (Piece value : pieces) {
+                value.labelIcon.setBounds(intSqScale + value.xCor * intSqScale, intSqScale - ((value.yCor - 7) * intSqScale), intSqScale, intSqScale);
+                for (int j = 0; j < 8; j++) {
+                    for (int i = 0; i < 8; i++) {
+                        btnList2d[i][j].setBounds(intSqScale + intSqScale * i, intSqScale - ((j - 7)*intSqScale), intSqScale, intSqScale);
+                    }
+                }
+                Board.mainPane.revalidate();    // Revalidate the panel
+                Board.mainPane.repaint();       // Repaint the panel
+            }
+            turn = false;
+        }
+        else {
+            for (Piece value : pieces) {
+                value.labelIcon.setBounds(intSqScale + value.xCor * intSqScale, intSqScale + value.yCor * intSqScale, intSqScale, intSqScale);
+                for (int j = 0; j < 8; j++) {
+                    for (int i = 0; i < 8; i++) {
+                        btnList2d[i][j].setBounds(intSqScale + intSqScale * i, intSqScale + intSqScale * j, intSqScale, intSqScale);
+                    }
+                }
+                Board.mainPane.revalidate();    // Revalidate the panel
+                Board.mainPane.repaint();       // Repaint the panel
+            }
+            turn = true;
+        }
+
+    }
+    static JFrame mainFrame = new JFrame();
     public static boolean moveAttempt = false;
     static ImageIcon imgBrown;
     static {
@@ -84,26 +135,23 @@ public class Board {
     }
     public static JLayeredPane mainPane = new JLayeredPane();
     private static Piece lastPiece;
-
-
-    //NEXT BIG STEP: MAKE A SYSTEM TO READ ANY SPOT ON THE BOARD AND IDENTIFY WHICH PIECE IS THERE
-    //Do Hashmap.get(x).get(y); This should be a Piece Object, return it.
-
     //This code runs when a square is clicked. It takes the x and y, stored inside that square.
     static void buttonClick(int x, int y) {
+        //System.out.println(pathIsUnblocked(4, 3, 7, 0, 6, 1));
         if (!moveAttempt) {
             //Find what piece is there. This piece will be referred to as clickPiece throughout this code, no matter what type of piece it is.
             Piece clickPiece = pieceMap.get(new Pair<>(x, y));
             //Following code is when a button is clicked and if there is a piece on it. clickPiece references that piece.
-            if (clickPiece != null) {
+
+            if (clickPiece != null&&clickPiece.color == turn && movesLeft>0) {
                 moveAttempt = true;
                 lastPiece = clickPiece;
+                boolean anyMovement = false;
                 //System.out.println(clickPcName);
                 //These are variables that represent past coordinates of squares that do have pieces. Used to check line of sight.
                 ArrayList<Integer> relCheckX = new ArrayList<>();
                 ArrayList<Integer> relCheckY = new ArrayList<>();
                 System.out.println(x + ", " + y);
-
                 //Cycles through every clickPiece movement value to find blockers.
                 for (int i = 0; i < clickPiece.getMovementAbs().size(); i++) {
                     //Logs all pieces that overlap with the movementAbs inside relCheck x or y.
@@ -116,27 +164,33 @@ public class Board {
                         //Runs if the coordinate xView,yView is occupied. This means it found a piece that might change overlap or block a spot.
                         relCheckX.add(xView);
                         relCheckY.add(yView);
-                        System.out.println("Blocker added at " + xView + "," + yView);
                         //Checks if the piece is the same color as it. Does not add the piece to the target spaces if it is.
                     }
                 }
+                //This code is used if there is absolutely no movement at all available.
                 clickPiece.getMovementRel().clear();
+
                 //Cycles through every movement value with line of sight blockers in mind to register which spots can and cant be moved to.
                 for (int i = 0; i < clickPiece.getMovementAbs().size(); i++) {
                     int xView = clickPiece.getMovementAbs().get(i).getX() + x;
                     int yView = clickPiece.getMovementAbs().get(i).getY() + y;
                     if (xView <= 7 && xView >= 0 && yView >= 0 && yView <= 7) {
-                            //Checks if its able to go without being blocked or if it's a knight who jumps :)
-                            if (canMoveHere(x, y, xView, yView, relCheckX, relCheckY) || (clickPiece.getClass().getName().equals("Knight"))) {
-                                //Runs only if the spot we are looking at has a piece
+                            //If its able to go to the target without being blocked by an obstacle or if it's a knight that jumps :)
+                            if (pathIsUnblockedArray(x, y, xView, yView, relCheckX, relCheckY) || (clickPiece.getClass().getName().equals("Knight"))) {
+                                //If the spot we are looking at has a piece
                                 if (pieceMap.get(new Pair<>(xView, yView)) != null) {
-                                    //For when it does have a piece, it needs to be an enemy piece. Checks this via color.
+                                    //If the piece can be taken because its on the other team
                                     if (pieceMap.get(new Pair<>(xView, yView)).color != pieceMap.get(new Pair<>(x, y)).color) {
+                                        //Adds it to the movement that we will paint later and reference for availability.
                                         clickPiece.getMovementRel().add(new IntPair(xView, yView));
+                                        anyMovement=true;
                                     }
-                                } else {
-                                    //This makes it aware xView and yView coordinates are blocked.
+                                }
+                                //If there is no piece at this spot.
+                                else {
+                                    //Adds it to the movement that we will paint later and reference for availability.
                                     clickPiece.getMovementRel().add(new IntPair(xView, yView));
+                                    anyMovement=true;
                                 }
                                 //System.out.println("added movement to " + xView + "," + yView);
                             } else {
@@ -144,50 +198,42 @@ public class Board {
                             }
                     }
                 }
+                if (!anyMovement){
+                    moveAttempt= false;
+                }
                 clickPiece.paintRelCoords();
+                relCheckX.clear();
+                relCheckY.clear();
             } else {
                 //Happens when clickPiece, the tile clicked, has no piece, and there is no piece trying to move right now. eventually, this should do nothing.
-                System.out.println("Blank Space");
+                System.out.println("No valid piece for movement here");
             }
+
         }
-        //make the following statement an else if that works for if we are in the second phase of moving a piece
-        //the if statement should check if the spot clicked is on the list of possibilites.
-        //possibly do a 2 way map for this? or a map that does bool outputs and 2 variable inputs?
-        //Basically, we just want to quickly see if this coordinate is a valid movement.
-        //if it is, then we run a function built in piece that changes the clickPiece position to the x and y of the second clicked one.
-        //this implied we need a way to store original clickPiece when movementAttempt = true. because now we have a new clickPiece. will figure that out in a second.
-        //best current idea is a global variable/alias that just gets swapped out everytime a movementAttempt != true happens.
-        //Also, we need edge cases to deal with unselecting. if a spot isn't on the valid movements, then we don't move the piece but the graphics and stuff are still cleared and the movementAttempt becomes false again.
         else {
             //No matter what is clicked, the next button after this should be independent. (change this, this is wrong
             moveAttempt = false;
-            //effectively like clickPiece from before, but now it clarifies it might not be an actual piece.
+            //Also no matter what is clicked, the red squares should go away.
+            lastPiece.scrapeRelCoords();
+            //effectively like clickPiece from before, but now the name clarifies it might not be an actual piece.
             Piece clickTile = pieceMap.get(new Pair<>(x, y));
-
-
-//            if (moveTruthMap.check(clickTile)){
-            //runs if there is no piece here. moves the old piece here.
-                if (clickTile == null) {
+                //Runs if there is no piece here and if it can move here easily.
+                if (clickTile == null && canMoveHere(x,y)) {
                     lastPiece.pieceMove(x, y);
-                    //Adjust pieceMove to make it adjust the visuals on the board.
+                    movesLeft--;
                 }
                 //runs if there is a piece here. should remove the piece and then move the old piece here.
-                else {
-                    //clickTile.labelIcon.setIcon(null);
+                else if (canMoveHere(x,y)){
+                    assert clickTile != null;
+                    clickTile.kill();
+                    lastPiece.pieceMove(x, y);
+                    movesLeft--;
                 }
-//            }
-
         }
     }
-        //Conceptually: I am trying to know which button has been clicked, what piece is on that button, then check the movement of that piece
-        //I need a method to check what piece is on any square (Done, the pieceMap)
-        //I need a method to check what movement of any piece is. (Not done, alternative was done)
-        //Ask object "what's movement" then return those values as an IntPair
-        //Add transparent red squares (JPanel) to board on palette layer. All squares affected should be told they are movemementaffected. (Done, kinda. might need to rework) movement affected not done.
-        //this means during buttonclick, they don't run any of the other code
     public Board() {
 
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         javax.swing.ToolTipManager.sharedInstance().setInitialDelay(20);
         images.makeIconTransparent(imgRed);
 
@@ -234,21 +280,18 @@ public class Board {
                 btnList2d[i][j].setToolTipText((i) + "," + (j));
             }
         }
-        f.setSize(600, 600);
-        f.getContentPane().add(mainPane);
-        f.setVisible(true);
-
+        mainFrame.setSize(600, 600);
+        mainFrame.getContentPane().add(mainPane);
+        mainFrame.setVisible(true);
         //CREATING THE PIECES
         ArrayList<Pawn> pawnListW = new ArrayList<>();
         ArrayList<Pawn> pawnListB = new ArrayList<>();
+        for(int i = 0; i < 8; i++){
+            //This loop create the 8 pawns at rows 2 and 7
+            pawnListW.add(new Pawn(i, 6, true, "pawnListW" +i));
+            pawnListB.add(new Pawn(i, 1, false, "pawnListB" +i));
 
-//        for(int i = 0; i < 8; i++){
-//            //This loop create the 8 pawns at rows 2 and 7
-//            pawnListW.add(new Pawn(i, 6, true, "pawnListW" +i));
-//            pawnListB.add(new Pawn(i, 1, false, "pawnListB" +i));
-//
-//        }
-
+        }
         Rook rookW1 = new Rook(0, 7, true, "rookW1");
         Rook rookW2 = new Rook(7, 7, true, "rookW2");
         Knight knightW1 = new Knight(1, 7, true, "knightW1");
@@ -265,8 +308,5 @@ public class Board {
         Bishop bishopB2 = new Bishop(5, 0, false, "bishopB2");
         King kingB = new King(4, 0, false, "kingB");
         Queen queenB = new Queen(3, 0, false, "queenB");
-
     }
-
-
 }
