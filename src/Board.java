@@ -7,6 +7,7 @@ import com.google.common.collect.HashBiMap;
 
 public class Board {
     static int intSqScale = 40;
+    static boolean ranged = false;
     static int movesLeft = 1;
     static boolean turn = true; //true if it's white's turn, false if it's black's turn.
     static JButton[][] btnList2d = new JButton[8][8];
@@ -39,9 +40,7 @@ public class Board {
                 return true; // Obstacle is in the queen's NW diagonal path
             }
             //BUG TO FIX. FOR SOME REASON, ON THE NE AND SW PATHS, IT JUST IGNORES BLOCKERS?
-            if ((queenX < obstacleX && obstacleX < targetX) && (queenY > obstacleY && obstacleY > targetY)){
-                return true; // Obstacle is in the queen's NE diagonal path
-            }
+            return (queenX < obstacleX && obstacleX < targetX) && (queenY > obstacleY && obstacleY > targetY); // Obstacle is in the queen's NE diagonal path
 
         }
 
@@ -78,6 +77,7 @@ public class Board {
         //Need to take every y value, make it negative, then add 8.
         Collection<Piece> pieces = pieceMap.values();
         movesLeft++;
+        EndTurn.unglow();
         if (turn) {
             // Iterate through the values and print them
             for (Piece value : pieces) {
@@ -142,68 +142,153 @@ public class Board {
             //Find what piece is there. This piece will be referred to as clickPiece throughout this code, no matter what type of piece it is.
             Piece clickPiece = pieceMap.get(new Pair<>(x, y));
             //Following code is when a button is clicked and if there is a piece on it. clickPiece references that piece.
-
-            if (clickPiece != null&&clickPiece.color == turn && movesLeft>0) {
+            if (clickPiece != null && clickPiece.color == turn && movesLeft>0) {
                 moveAttempt = true;
                 lastPiece = clickPiece;
+                clickPiece.getMovementRel().clear();
+                if (clickPiece instanceof Pawn pawnClickPiece) {
+                    pawnClickPiece.pawnAtkCheck();
+                }
+                if (clickPiece instanceof King kingClickPiece) {
+                    System.out.println("recognized its a king");
+                    kingClickPiece.kingCastleCheck();
+                }
                 boolean anyMovement = false;
-                //System.out.println(clickPcName);
+
                 //These are variables that represent past coordinates of squares that do have pieces. Used to check line of sight.
                 ArrayList<Integer> relCheckX = new ArrayList<>();
                 ArrayList<Integer> relCheckY = new ArrayList<>();
                 System.out.println(x + ", " + y);
-                //Cycles through every clickPiece movement value to find blockers.
-                for (int i = 0; i < clickPiece.getMovementAbs().size(); i++) {
-                    //Logs all pieces that overlap with the movementAbs inside relCheck x or y.
-                    //getMovementAbs gets an array of where that piece goes. get(i) shuffles through every piece in the array. getX/Y get the individual coord points.
-                    //Adding x onto the end adds the current coordinate spot to the movement system which is relative to the piece. this makes it relative to the board instead of the piece.
-                    int xView = clickPiece.getMovementAbs().get(i).getX() + x;
-                    int yView = clickPiece.getMovementAbs().get(i).getY() + y;
-                    Piece viewedPiece = pieceMap.get(new Pair<>(xView, yView));
-                    if (viewedPiece != null) {
-                        //Runs if the coordinate xView,yView is occupied. This means it found a piece that might change overlap or block a spot.
-                        relCheckX.add(xView);
-                        relCheckY.add(yView);
-                        //Checks if the piece is the same color as it. Does not add the piece to the target spaces if it is.
-                    }
-                }
-                //This code is used if there is absolutely no movement at all available.
-                clickPiece.getMovementRel().clear();
+
 
                 //Cycles through every movement value with line of sight blockers in mind to register which spots can and cant be moved to.
-                for (int i = 0; i < clickPiece.getMovementAbs().size(); i++) {
-                    int xView = clickPiece.getMovementAbs().get(i).getX() + x;
-                    int yView = clickPiece.getMovementAbs().get(i).getY() + y;
-                    if (xView <= 7 && xView >= 0 && yView >= 0 && yView <= 7) {
+                if (clickPiece.moveAttack) {
+                    //Cycles through every clickPiece moveAtkAbs value to find blockers.
+                    for (int i = 0; i < clickPiece.getMoveAtkAbs().size(); i++) {
+                        //Logs all pieces that overlap with the moveAtkAbs inside relCheck x or y.
+                        //getMoveAtkAbs gets an array of where that piece goes. get(i) shuffles through every piece in the array. getX/Y get the individual coord points.
+                        //Adding x onto the end adds the current coordinate spot to the movement system which is relative to the piece. this makes it relative to the board instead of the piece.
+                        int xView = clickPiece.getMoveAtkAbs().get(i).getX() + x;
+                        int yView = clickPiece.getMoveAtkAbs().get(i).getY() + y;
+                        Piece viewedPiece = pieceMap.get(new Pair<>(xView, yView));
+                        if (viewedPiece != null) {
+                            //Runs if the coordinate xView,yView is occupied. This means it found a piece that might change overlap or block a spot.
+                            relCheckX.add(xView);
+                            relCheckY.add(yView);
+                            //Checks if the piece is the same color as it. Does not add the piece to the target spaces if it is.
+                        }
+                    }
+                    for (int i = 0; i < clickPiece.getMoveAtkAbs().size(); i++) {
+                        int xView = clickPiece.getMoveAtkAbs().get(i).getX() + x;
+                        int yView = clickPiece.getMoveAtkAbs().get(i).getY() + y;
+                        if (xView <= 7 && xView >= 0 && yView >= 0 && yView <= 7) {
                             //If its able to go to the target without being blocked by an obstacle or if it's a knight that jumps :)
-                            if (pathIsUnblockedArray(x, y, xView, yView, relCheckX, relCheckY) || (clickPiece.getClass().getName().equals("Knight"))) {
+                            if (pathIsUnblockedArray(x, y, xView, yView, relCheckX, relCheckY) || clickPiece.getClass().getName().equals("Knight")) {
                                 //If the spot we are looking at has a piece
                                 if (pieceMap.get(new Pair<>(xView, yView)) != null) {
                                     //If the piece can be taken because its on the other team
                                     if (pieceMap.get(new Pair<>(xView, yView)).color != pieceMap.get(new Pair<>(x, y)).color) {
                                         //Adds it to the movement that we will paint later and reference for availability.
                                         clickPiece.getMovementRel().add(new IntPair(xView, yView));
-                                        anyMovement=true;
+                                        anyMovement = true;
                                     }
                                 }
                                 //If there is no piece at this spot.
                                 else {
                                     //Adds it to the movement that we will paint later and reference for availability.
                                     clickPiece.getMovementRel().add(new IntPair(xView, yView));
-                                    anyMovement=true;
+                                    anyMovement = true;
                                 }
-                                //System.out.println("added movement to " + xView + "," + yView);
-                            } else {
-                                //FUTURE: possibly make units that can hop over walls use this feature. this runs just like other ones but in the else it is specifically blocked spots. one time use stuff ig.
                             }
+//                             else {
+//                                //FUTURE: possibly make units that can hop over walls use this feature. this runs just like other ones but in the else it is specifically blocked spots. one time use stuff ig.
+//                            }
+                        }
                     }
                 }
-                if (!anyMovement){
-                    moveAttempt= false;
+
+                //This only can move to a spot if there is a piece there.
+                else if (clickPiece.attackOnly) {
+                    for (int i = 0; i < clickPiece.getAtkOnlyAbs().size(); i++) {
+                        //Logs all pieces that overlap with the moveAtkAbs inside relCheck x or y.
+                        //getMoveAtkAbs gets an array of where that piece goes. get(i) shuffles through every piece in the array. getX/Y get the individual coord points.
+                        //Adding x onto the end adds the current coordinate spot to the movement system which is relative to the piece. this makes it relative to the board instead of the piece.
+                        int xView = clickPiece.getAtkOnlyAbs().get(i).getX() + x;
+                        int yView = clickPiece.getAtkOnlyAbs().get(i).getY() + y;
+                        Piece viewedPiece = pieceMap.get(new Pair<>(xView, yView));
+                        if (viewedPiece != null) {
+                            //Runs if the coordinate xView,yView is occupied. This means it found a piece that might change overlap or block a spot.
+                            relCheckX.add(xView);
+                            relCheckY.add(yView);
+                            //Checks if the piece is the same color as it. Does not add the piece to the target spaces if it is.
+                        }
+                    }
+                    for (int i = 0; i < clickPiece.getAtkOnlyAbs().size(); i++) {
+                        int xView = clickPiece.getAtkOnlyAbs().get(i).getX() + x;
+                        int yView = clickPiece.getAtkOnlyAbs().get(i).getY() + y;
+                        if (xView <= 7 && xView >= 0 && yView >= 0 && yView <= 7) {
+                            //If its able to go to the target without being blocked by an obstacle or if it's a knight that jumps :)
+                            if (pathIsUnblockedArray(x, y, xView, yView, relCheckX, relCheckY)) {
+                                //If the spot we are looking at has a piece
+                                if (pieceMap.get(new Pair<>(xView, yView)) != null) {
+                                    //If the piece can be taken because its on the other team
+                                    if (pieceMap.get(new Pair<>(xView, yView)).color != pieceMap.get(new Pair<>(x, y)).color) {
+                                        //Adds it to the movement that we will paint later and reference for availability.
+                                        clickPiece.getMovementRel().add(new IntPair(xView, yView));
+                                        anyMovement = true;
+                                    }
+                                }
+                            }
+//                             else {
+//                                //FUTURE: possibly make units that can hop over walls use this feature. this runs just like other ones but in the else it is specifically blocked spots. one time use stuff ig.
+//                            }
+                        }
+                    }
+
+                }
+                //This move places the piece there. Doesn't kill pieces.
+                else if (clickPiece.moveOnly) {
+                    for (int i = 0; i < clickPiece.getMoveOnlyAbs().size(); i++) {
+                        //Logs all pieces that overlap with the moveAtkAbs inside relCheck x or y.
+                        //getMoveAtkAbs gets an array of where that piece goes. get(i) shuffles through every piece in the array. getX/Y get the individual coord points.
+                        //Adding x onto the end adds the current coordinate spot to the movement system which is relative to the piece. this makes it relative to the board instead of the piece.
+                        int xView = clickPiece.getMoveOnlyAbs().get(i).getX() + x;
+                        int yView = clickPiece.getMoveOnlyAbs().get(i).getY() + y;
+                        Piece viewedPiece = pieceMap.get(new Pair<>(xView, yView));
+                        if (viewedPiece != null) {
+                            //Runs if the coordinate xView,yView is occupied. This means it found a piece that might change overlap or block a spot.
+                            relCheckX.add(xView);
+                            relCheckY.add(yView);
+                            //Checks if the piece is the same color as it. Does not add the piece to the target spaces if it is.
+                        }
+                    }
+                    for (int i = 0; i < clickPiece.getMoveOnlyAbs().size(); i++) {
+                        int xView = clickPiece.getMoveOnlyAbs().get(i).getX() + x;
+                        int yView = clickPiece.getMoveOnlyAbs().get(i).getY() + y;
+                        if (xView <= 7 && xView >= 0 && yView >= 0 && yView <= 7) {
+                            //If its able to go to the target without being blocked by an obstacle or if it's a knight that jumps :)
+                            if (pathIsUnblockedArray(x, y, xView, yView, relCheckX, relCheckY)) {
+                                //If the spot we are looking at has a piece
+                                if (pieceMap.get(new Pair<>(xView, yView)) == null) {
+                                    //Adds it to the attack that we will paint later and reference for availability.
+                                    clickPiece.getMovementRel().add(new IntPair(xView, yView));
+                                    anyMovement = true;
+                                }
+                            }
+//                             else {
+//                                //FUTURE: possibly make units that can hop over walls use this feature. this runs just like other ones but in the else it is specifically blocked spots. one time use stuff ig.
+//                            }
+                        }
+                    }
+                }
+                //This code is used if there is absolutely no movement at all available.
+                if (!anyMovement) {
+                    moveAttempt = false;
                 }
                 clickPiece.paintRelCoords();
                 relCheckX.clear();
                 relCheckY.clear();
+
             } else {
                 //Happens when clickPiece, the tile clicked, has no piece, and there is no piece trying to move right now. eventually, this should do nothing.
                 System.out.println("No valid piece for movement here");
@@ -218,16 +303,27 @@ public class Board {
             //effectively like clickPiece from before, but now the name clarifies it might not be an actual piece.
             Piece clickTile = pieceMap.get(new Pair<>(x, y));
                 //Runs if there is no piece here and if it can move here easily.
+                if (lastPiece instanceof King && clickTile instanceof Rook){
+                    if (x == 7 && y == 7 && !Piece.castled){
+                        lastPiece.pieceMove(6,7);
+                        clickTile.pieceMove(5,7);
+                        Piece.castled = true;
+                    }if (x == 0 && y == 7 && !Piece.castled){
+                        lastPiece.pieceMove(2,7);
+                        clickTile.pieceMove(3,7);
+                        Piece.castled = true;
+                    }
+                    lastPiece.scrapeCoord();
+
+                }
                 if (clickTile == null && canMoveHere(x,y)) {
                     lastPiece.pieceMove(x, y);
-                    movesLeft--;
                 }
                 //runs if there is a piece here. should remove the piece and then move the old piece here.
                 else if (canMoveHere(x,y)){
                     assert clickTile != null;
                     clickTile.kill();
                     lastPiece.pieceMove(x, y);
-                    movesLeft--;
                 }
         }
     }

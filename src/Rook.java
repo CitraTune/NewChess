@@ -39,8 +39,8 @@ public class Rook extends Piece{
         // Rook can move horizontally and vertically
         for (int i = -7; i <= 7; i++) {
             if (i != 0) {
-                getMovementAbs().add(new IntPair(i, 0));
-                getMovementAbs().add(new IntPair(0, i));
+                getMoveAtkAbs().add(new IntPair(i, 0));
+                getMoveAtkAbs().add(new IntPair(0, i));
 
             }
         }
@@ -57,7 +57,7 @@ public class Rook extends Piece{
             }
         }
         //How to access the object itself when running the declaration. I need the map to know the xCor and yCor of the object.
-
+        moveAttack = true;
         if (color) {
             labelIcon = new JLabel(imgSmoother(imgRookW));
         } else {

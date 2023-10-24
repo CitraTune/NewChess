@@ -25,28 +25,21 @@ public class Knight extends Piece{
         super(xCor, yCor, color, name);
 
         // Knight can move in an L-shape pattern
-        getMovementAbs().add(new IntPair(2, 1));
-        getMovementAbs().add(new IntPair(1, 2));
-        getMovementAbs().add(new IntPair(-1, 2));
-        getMovementAbs().add(new IntPair(-2, 1));
-        getMovementAbs().add(new IntPair(-2, -1));
-        getMovementAbs().add(new IntPair(-1, -2));
-        getMovementAbs().add(new IntPair(1, -2));
-        getMovementAbs().add(new IntPair(2, -1));
-        getMovementRel().add(new IntPair(2, 1));
-        getMovementRel().add(new IntPair(1, 2));
-        getMovementRel().add(new IntPair(-1, 2));
-        getMovementRel().add(new IntPair(-2, 1));
-        getMovementRel().add(new IntPair(-2, -1));
-        getMovementRel().add(new IntPair(-1, -2));
-        getMovementRel().add(new IntPair(1, -2));
-        getMovementRel().add(new IntPair(2, -1));
-
+        getMoveAtkAbs().add(new IntPair(2, 1));
+        getMoveAtkAbs().add(new IntPair(1, 2));
+        getMoveAtkAbs().add(new IntPair(-1, 2));
+        getMoveAtkAbs().add(new IntPair(-2, 1));
+        getMoveAtkAbs().add(new IntPair(-2, -1));
+        getMoveAtkAbs().add(new IntPair(-1, -2));
+        getMoveAtkAbs().add(new IntPair(1, -2));
+        getMoveAtkAbs().add(new IntPair(2, -1));
+        moveAttack = true;
         if (color) {
             labelIcon = new JLabel(imgSmoother(imgKnightW));
         } else {
             labelIcon = new JLabel(imgSmoother(imgKnightB));
         }
+
         labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
         Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
     }

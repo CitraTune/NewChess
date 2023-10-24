@@ -9,4 +9,4 @@ public class Main {
 
     }
 }
-//Things to add: Make pawns follow pawn rules. Add castling.
+//Things to add:

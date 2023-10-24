@@ -1,4 +1,4 @@
-class Pair<K1, K2> {
+public class Pair<K1, K2> {
     private final K1 key1;
     private final K2 key2;
 

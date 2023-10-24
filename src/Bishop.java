@@ -31,14 +31,14 @@ public class Bishop extends Piece{
         // Bishop can move diagonally
         for (int i = -7; i <= 7; i++) {
             if (i != 0) {
-                getMovementAbs().add(new IntPair(i, i));
-                getMovementAbs().add(new IntPair(i, -i));
+                getMoveAtkAbs().add(new IntPair(i, i));
+                getMoveAtkAbs().add(new IntPair(i, -i));
             }
         }
-
+        moveAttack = true;
         if (color) {
             labelIcon = new JLabel(imgSmoother(imgBishopW));
-        } else if (!color) {
+        } else {
             labelIcon = new JLabel(imgSmoother(imgBishopB));
         }
         labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);

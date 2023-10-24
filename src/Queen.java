@@ -27,10 +27,10 @@ public class Queen extends Piece{
         // Queen can move diagonally, horizontally, and vertically
         for (int i = -7; i <= 7; i++) {
             if (i != 0) {
-                getMovementAbs().add(new IntPair(i, i));
-                getMovementAbs().add(new IntPair(i, -i));
-                getMovementAbs().add(new IntPair(i, 0));
-                getMovementAbs().add(new IntPair(0, i));
+                getMoveAtkAbs().add(new IntPair(i, i));
+                getMoveAtkAbs().add(new IntPair(i, -i));
+                getMoveAtkAbs().add(new IntPair(i, 0));
+                getMoveAtkAbs().add(new IntPair(0, i));
             }
         }
         for (int i = -7; i <= 7; i++) {
@@ -50,7 +50,7 @@ public class Queen extends Piece{
                 }
             }
         }
-
+        moveAttack = true;
         if (color) {
             labelIcon = new JLabel(imgSmoother(imgQueenW));
         } else {
