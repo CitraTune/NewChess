@@ -45,12 +45,12 @@ public class King extends Piece{
         }
         moveAttack = true;
         if (color) {
-            labelIcon = new JLabel(imgSmoother(imgKingW));
+            setLabelIcon(new JLabel(imgSmoother(imgKingW)));
         } else {
-            labelIcon = new JLabel(imgSmoother(imgKingB));
+            setLabelIcon(new JLabel(imgSmoother(imgKingB)));
         }
-        labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
-        Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
+        getLabelIcon().setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
+        Board.mainPane.add(getLabelIcon(), JLayeredPane.PALETTE_LAYER);
     }
 
 }

@@ -20,19 +20,9 @@ public class Rook extends Piece{
             throw new RuntimeException(e);
         }
     }
-
-
-    //Objectname.PaintRelCoords()
-
-
-
     public void newPosition(){
         getMovementRel().clear();
     }
-
-
-
-
     public Rook(int xCor, int yCor, boolean color, String name) {
         super(xCor, yCor, color, name);
 
@@ -41,7 +31,6 @@ public class Rook extends Piece{
             if (i != 0) {
                 getMoveAtkAbs().add(new IntPair(i, 0));
                 getMoveAtkAbs().add(new IntPair(0, i));
-
             }
         }
 
@@ -59,12 +48,12 @@ public class Rook extends Piece{
         //How to access the object itself when running the declaration. I need the map to know the xCor and yCor of the object.
         moveAttack = true;
         if (color) {
-            labelIcon = new JLabel(imgSmoother(imgRookW));
+            setLabelIcon(new JLabel(imgSmoother(imgRookW)));
         } else {
-            labelIcon = new JLabel(imgSmoother(imgRookB));
+            new JLabel(imgSmoother(imgRookB));
         }
-        labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
-        Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
+        getLabelIcon().setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
+        Board.mainPane.add(getLabelIcon(), JLayeredPane.PALETTE_LAYER);
     }
 
 }

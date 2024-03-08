@@ -19,8 +19,6 @@ public class Queen extends Piece{
             throw new RuntimeException(e);
         }
     }
-
-
     public Queen(int xCor, int yCor, boolean color, String name) {
         super(xCor, yCor, color, name);
 
@@ -52,12 +50,11 @@ public class Queen extends Piece{
         }
         moveAttack = true;
         if (color) {
-            labelIcon = new JLabel(imgSmoother(imgQueenW));
+            setLabelIcon(new JLabel(imgSmoother(imgQueenW)));
         } else {
-            labelIcon = new JLabel(imgSmoother(imgQueenB));
+            setLabelIcon(new JLabel(imgSmoother(imgQueenB)));
         }
-        labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
-        Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
+        getLabelIcon().setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
+        Board.mainPane.add(getLabelIcon(), JLayeredPane.PALETTE_LAYER);
     }
-
 }

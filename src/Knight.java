@@ -35,13 +35,13 @@ public class Knight extends Piece{
         getMoveAtkAbs().add(new IntPair(2, -1));
         moveAttack = true;
         if (color) {
-            labelIcon = new JLabel(imgSmoother(imgKnightW));
+            setLabelIcon(new JLabel(imgSmoother(imgKnightW)));
         } else {
-            labelIcon = new JLabel(imgSmoother(imgKnightB));
+            setLabelIcon(new JLabel(imgSmoother(imgKnightB)));
         }
 
-        labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
-        Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
+        getLabelIcon().setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
+        Board.mainPane.add(getLabelIcon(), JLayeredPane.PALETTE_LAYER);
     }
 
 

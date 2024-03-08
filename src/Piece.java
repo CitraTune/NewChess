@@ -4,24 +4,115 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Piece {
-
-
     static ImageIcon imgSmoother(ImageIcon largeimg){
-
         Image image = largeimg.getImage(); // transform it
         Image newimg = image.getScaledInstance(Board.intSqScale, Board.intSqScale,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
         largeimg = new ImageIcon(newimg);
         return(largeimg);
     }
     int xCor;
+    public boolean isColor() {
+        return color;
+    }
+
+    public void setColor(boolean color) {
+        this.color = color;
+    }
+
+    public boolean isMovedYet() {
+        return movedYet;
+    }
+
+    public void setMovedYet(boolean movedYet) {
+        this.movedYet = movedYet;
+    }
+
+    public boolean isMoveAttack() {
+        return moveAttack;
+    }
+
+    public void setMoveAttack(boolean moveAttack) {
+        this.moveAttack = moveAttack;
+    }
+
+    public boolean isMoveOnly() {
+        return moveOnly;
+    }
+
+    public void setMoveOnly(boolean moveOnly) {
+        this.moveOnly = moveOnly;
+    }
+
+    public boolean isAttackOnly() {
+        return attackOnly;
+    }
+
+    public void setAttackOnly(boolean attackOnly) {
+        this.attackOnly = attackOnly;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public JLabel getLabelIcon() {
+        return labelIcon;
+    }
+
+    public void setLabelIcon(JLabel labelIcon) {
+        this.labelIcon = labelIcon;
+    }
+
+    public void setMoveAtkAbs(List<IntPair> moveAtkAbs) {
+        this.moveAtkAbs = moveAtkAbs;
+    }
+
+    public void setMoveOnlyAbs(List<IntPair> moveOnlyAbs) {
+        this.moveOnlyAbs = moveOnlyAbs;
+    }
+
+    public void setAtkOnlyAbs(List<IntPair> atkOnlyAbs) {
+        this.atkOnlyAbs = atkOnlyAbs;
+    }
+
+    public void setAttackRel(List<IntPair> attackRel) {
+        this.attackRel = attackRel;
+    }
+
+    public List<JLabel> getTranSquares() {
+        return tranSquares;
+    }
+
+    public JLabel getTranSquare() {
+        return tranSquare;
+    }
+
+    public void setTranSquare(JLabel tranSquare) {
+        this.tranSquare = tranSquare;
+    }
+
+    public boolean isCastled() {
+        return castled;
+    }
+
+    public void setCastled(boolean castled) {
+        this.castled = castled;
+    }
+
     int yCor;
     boolean color;
     boolean movedYet;
     boolean moveAttack;
     boolean moveOnly;
     boolean attackOnly;
-    String name;
-    JLabel labelIcon = new JLabel();
+    //
+    private String name;
+    //the actual image used on the board
+    private JLabel labelIcon = new JLabel();
     private List<IntPair> moveAtkAbs = new ArrayList<>();
     private List<IntPair> moveOnlyAbs = new ArrayList<>();
     private List<IntPair> atkOnlyAbs = new ArrayList<>();
@@ -29,10 +120,11 @@ public class Piece {
     private List<IntPair> attackRel = new ArrayList<>();
     private List<IntPair> attackRelRange = new ArrayList<>();
     private final List<JLabel> tranSquares = new ArrayList<>();
+    //what does transquare mean?
     private JLabel tranSquare;
-    public static boolean castled = false;
+    private boolean castled = false;
 
-
+    //what does this do?
     public void paintEnableCoord(int x, int y){
         tranSquare = new JLabel(imgSmoother(Board.imgRed));
         if (!Board.turn) {
@@ -44,10 +136,11 @@ public class Piece {
         Board.mainPane.add(tranSquare, JLayeredPane.PALETTE_LAYER);
 
     }
+    //Scrapecoord removes the red indicator square
     public void scrapeCoord(){
         Board.mainPane.remove(tranSquare);
-
     }
+    //paint the coords red
     public void paintRelCoords() {
         for (int i = 0; i < getMovementRel().size(); i++ ){
             IntPair relPair = getMovementRel().get(i);
@@ -64,7 +157,7 @@ public class Piece {
         }
 
     }
-
+    //remove the red coords
     public void scrapeRelCoords() {
         for (int i = 0; i < getMovementRel().size(); i++ ){
             IntPair relPair = getMovementRel().get(i);
@@ -131,6 +224,7 @@ public class Piece {
         this.yCor = yCor;
         this.color = color;
         this.name = name;
+        this.castled = false;
         Board.pieceMap.put(new Pair<>(xCor, yCor), this);
     }
 

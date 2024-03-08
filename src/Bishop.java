@@ -37,12 +37,12 @@ public class Bishop extends Piece{
         }
         moveAttack = true;
         if (color) {
-            labelIcon = new JLabel(imgSmoother(imgBishopW));
+            setLabelIcon(new JLabel(imgSmoother(imgBishopW)));
         } else {
-            labelIcon = new JLabel(imgSmoother(imgBishopB));
+            setLabelIcon(new JLabel(imgSmoother(imgBishopB)));
         }
-        labelIcon.setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
-        Board.mainPane.add(labelIcon, JLayeredPane.PALETTE_LAYER);
+        getLabelIcon().setBounds(40 +xCor*40, 40 +yCor*40, 40, 40);
+        Board.mainPane.add(getLabelIcon(), JLayeredPane.PALETTE_LAYER);
     }
 
 }

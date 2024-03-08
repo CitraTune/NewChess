@@ -41,7 +41,6 @@ public class Board {
             }
             //BUG TO FIX. FOR SOME REASON, ON THE NE AND SW PATHS, IT JUST IGNORES BLOCKERS?
             return (queenX < obstacleX && obstacleX < targetX) && (queenY > obstacleY && obstacleY > targetY); // Obstacle is in the queen's NE diagonal path
-
         }
 
         return false;
@@ -81,7 +80,7 @@ public class Board {
         if (turn) {
             // Iterate through the values and print them
             for (Piece value : pieces) {
-                value.labelIcon.setBounds(intSqScale + value.xCor * intSqScale, intSqScale - ((value.yCor - 7) * intSqScale), intSqScale, intSqScale);
+                value.getLabelIcon().setBounds(intSqScale + value.xCor * intSqScale, intSqScale - ((value.yCor - 7) * intSqScale), intSqScale, intSqScale);
                 for (int j = 0; j < 8; j++) {
                     for (int i = 0; i < 8; i++) {
                         btnList2d[i][j].setBounds(intSqScale + intSqScale * i, intSqScale - ((j - 7)*intSqScale), intSqScale, intSqScale);
@@ -94,7 +93,7 @@ public class Board {
         }
         else {
             for (Piece value : pieces) {
-                value.labelIcon.setBounds(intSqScale + value.xCor * intSqScale, intSqScale + value.yCor * intSqScale, intSqScale, intSqScale);
+                value.getLabelIcon().setBounds(intSqScale + value.xCor * intSqScale, intSqScale + value.yCor * intSqScale, intSqScale, intSqScale);
                 for (int j = 0; j < 8; j++) {
                     for (int i = 0; i < 8; i++) {
                         btnList2d[i][j].setBounds(intSqScale + intSqScale * i, intSqScale + intSqScale * j, intSqScale, intSqScale);
@@ -137,7 +136,16 @@ public class Board {
     private static Piece lastPiece;
     //This code runs when a square is clicked. It takes the x and y, stored inside that square.
     static void buttonClick(int x, int y) {
-        //System.out.println(pathIsUnblocked(4, 3, 7, 0, 6, 1));
+        //testing part
+        Piece testPiece = pieceMap.get(new Pair<>(x, y));
+        if(testPiece != null) {
+            System.out.println(x + ", " + y + " piece:" + testPiece.getName());
+        }
+        else{
+            System.out.println("no piece here :)");
+        }
+        //real part
+        //when we are selecting a new piece to move
         if (!moveAttempt) {
             //Find what piece is there. This piece will be referred to as clickPiece throughout this code, no matter what type of piece it is.
             Piece clickPiece = pieceMap.get(new Pair<>(x, y));
@@ -158,7 +166,9 @@ public class Board {
                 //These are variables that represent past coordinates of squares that do have pieces. Used to check line of sight.
                 ArrayList<Integer> relCheckX = new ArrayList<>();
                 ArrayList<Integer> relCheckY = new ArrayList<>();
-                System.out.println(x + ", " + y);
+
+                //System.out.println(x + ", " + y + "piece:" + clickPiece.getName());
+                System.out.println("Selected piece to move.");
 
 
                 //Cycles through every movement value with line of sight blockers in mind to register which spots can and cant be moved to.
@@ -289,32 +299,33 @@ public class Board {
                 relCheckX.clear();
                 relCheckY.clear();
 
-            } else {
-                //Happens when clickPiece, the tile clicked, has no piece, and there is no piece trying to move right now. eventually, this should do nothing.
-                System.out.println("No valid piece for movement here");
             }
+//            else {
+//                //Happens when clickPiece, the tile clicked, has no piece, and there is no piece trying to move right now. eventually, this should do nothing.
+//                System.out.println("No valid piece for movement here");
+//            }
 
         }
+        //when we are clicking a piece to begin movement
         else {
-            //No matter what is clicked, the next button after this should be independent. (change this, this is wrong
+            //No matter what is clicked, we have attempted to move and can't attempt again after this click.
             moveAttempt = false;
-            //Also no matter what is clicked, the red squares should go away.
+            //Also no matter what is clicked, the red squares should go away. Even if there are no red squares.
             lastPiece.scrapeRelCoords();
-            //effectively like clickPiece from before, but now the name clarifies it might not be an actual piece.
+            //effectively like clickPiece from before, but now the name clarifies it might not be an actual piece. Instead, clicktile is the piece that is at that position.
             Piece clickTile = pieceMap.get(new Pair<>(x, y));
-                //Runs if there is no piece here and if it can move here easily.
+                //Castling. Makes sure we clicked a king
                 if (lastPiece instanceof King && clickTile instanceof Rook){
-                    if (x == 7 && y == 7 && !Piece.castled){
+                    if (x == 7 && y == 7 && !clickTile.isCastled()){
                         lastPiece.pieceMove(6,7);
                         clickTile.pieceMove(5,7);
-                        Piece.castled = true;
-                    }if (x == 0 && y == 7 && !Piece.castled){
+                        clickTile.setCastled(true);
+                    }if (x == 0 && y == 7 && !clickTile.isCastled()){
                         lastPiece.pieceMove(2,7);
                         clickTile.pieceMove(3,7);
-                        Piece.castled = true;
+                        clickTile.setCastled(true);
                     }
                     lastPiece.scrapeCoord();
-
                 }
                 if (clickTile == null && canMoveHere(x,y)) {
                     lastPiece.pieceMove(x, y);
@@ -373,7 +384,7 @@ public class Board {
                     btnList2d[i][j].addActionListener(e -> buttonClick(index,indey));
                     mainPane.add(btnList2d[i][j], JLayeredPane.DEFAULT_LAYER);
                 }
-                btnList2d[i][j].setToolTipText((i) + "," + (j));
+                //btnList2d[i][j].setToolTipText((i) + "," + (j));
             }
         }
         mainFrame.setSize(600, 600);
@@ -386,7 +397,6 @@ public class Board {
             //This loop create the 8 pawns at rows 2 and 7
             pawnListW.add(new Pawn(i, 6, true, "pawnListW" +i));
             pawnListB.add(new Pawn(i, 1, false, "pawnListB" +i));
-
         }
         Rook rookW1 = new Rook(0, 7, true, "rookW1");
         Rook rookW2 = new Rook(7, 7, true, "rookW2");
