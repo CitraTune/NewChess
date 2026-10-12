@@ -1,0 +1,37 @@
+name: Chess II Java and multiplayer checks
+on:
+  push:
+    branches: [AI-version-with-younger-mes-dreams]
+    paths: ['dreams/**', '.github/workflows/dreams-java.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Compile and test Java rules and multiplayer
+        working-directory: dreams
+        run: |
+          javac -encoding UTF-8 Chess2.java DesktopSmoke.java
+          java Chess2 --test
+          xvfb-run -a java DesktopSmoke
+      - name: Install browser test tools
+        working-directory: dreams
+        run: |
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+      - name: Browser two-player checks
+        working-directory: dreams
+        run: node browser-test.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chess2-checks
+          path: dreams/test-output
