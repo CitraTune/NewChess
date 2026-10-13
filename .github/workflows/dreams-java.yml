@@ -19,8 +19,9 @@ jobs:
       - name: Compile and test Java rules and multiplayer
         working-directory: dreams
         run: |
-          javac -encoding UTF-8 Chess2.java DesktopSmoke.java
+          javac -encoding UTF-8 Chess2.java DesktopSmoke.java SoloTest.java
           java Chess2 --test
+          java SoloTest
           xvfb-run -a java DesktopSmoke
       - name: Install browser test tools
         working-directory: dreams
@@ -29,9 +30,12 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Browser two-player checks
         working-directory: dreams
-        run: node browser-test.cjs
+        run: |
+          node browser-test.cjs
+          node solo-browser-test.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: chess2-checks
           path: dreams/test-output
+

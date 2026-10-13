@@ -10,7 +10,37 @@ Install a free **JDK 17 or newer** (such as Eclipse Temurin). Open this folder i
 java Chess2.java
 ```
 
-A native Java window opens for local two-player play. No Maven, Gradle, npm, paid service, API key, or external library is needed. VS Code's Java extension is optional. From the repository root, run `java dreams/Chess2.java`.
+A native Java menu opens: **Solo vs bot**, **The Shattered Crown**, or **Local two-player**. Solo modes then offer a difficulty choice. No Maven, Gradle, npm, paid service, API key, or external library is needed. VS Code's Java extension is optional. From the repository root, run `java dreams/Chess2.java`.
+
+## Solo and roguelike
+
+```sh
+java Chess2.java --bot normal
+java Chess2.java --roguelike --bot hard
+java Chess2.java --server --roguelike --bot normal
+```
+
+The last command prints a private browser link. You play Ivory; the bot controls Onyx. It thinks in the background, so the window stays responsive.
+
+| Difficulty | Behavior |
+| --- | --- |
+| Easy | Random legal moves; useful for learning the variant |
+| Normal | Evaluates captures, exposed pieces, cards and equipment with some randomness |
+| Hard | Searches replies with a two-ply, limited-width search |
+| Expert | Searches up to three plies with a larger thinking budget |
+
+These are custom Chess II opponents, not Stockfish or rated chess engines. Search is bounded; Hard and Expert can still make mistakes. Normal and above can use cards, relics, upgrades and special abilities. Future opponent card draws and mystery outcomes are not predicted.
+
+**The Shattered Crown** is an original six-battle roguelike inspired by the army-building loop of The Ouroboros King:
+
+- Start with a king, knight, rook, two pawns and $150.
+- Surviving units, permanent equipment, money and unused items carry forward. Fallen units stay lost unless revived.
+- After each of the first five wins, choose one of three rewards: recruitment, money, supplies, a forge upgrade, revival or a permanent run relic.
+- Choose a supply route or a harder elite battle. Battles three and six are bosses.
+- Four permanent run relics grant starting shields, extra income, a larger opening hand or capture bonuses.
+- Battles use an 8×8 board with mystery tiles, cards and the Bazaar available immediately. Temporary statuses and damage reset between battles; spent shields remain spent unless a relic restores them.
+
+Lose your army and the run ends. Complete six battles to win. Relaunch for a new run; use `--seed 123` to repeat starting generation and rewards (your choices still affect the run). Runs currently live in memory, with no save/resume or between-run progression.
 
 ## Play with a friend in their browser
 
@@ -80,7 +110,7 @@ This is a first playable implementation, not every idea in the brainstorming.
 - Rein Carnation makes a nearby pawn. Treasure pays immediately. Egg can stun but cannot hatch yet.
 - Fog covers two middle ranks; ending two owner turns there causes damage. Leaving resets exposure. Relevant armor can block damage.
 - Expansion adds space behind, beside and between armies, remapping original squares.
-- Temporary chess glyphs, no custom pixel art/audio yet. No AI opponent, matchmaking, persistent lobby or saved matches.
+- Temporary chess glyphs, no custom pixel art/audio yet. No matchmaking, persistent lobby or saved matches.
 - Desktop hotseat is shared-screen. Browser hands are private.
 
 See [ROADMAP.md](ROADMAP.md) for remaining dreams.
@@ -88,8 +118,10 @@ See [ROADMAP.md](ROADMAP.md) for remaining dreams.
 ## Development checks
 
 ```sh
-javac -encoding UTF-8 Chess2.java
+javac -encoding UTF-8 Chess2.java SoloTest.java
 java Chess2 --test
+java SoloTest
 ```
 
 The branch's GitHub workflow compiles Java 17, tests rules and an actual two-client HTTP session, exercises desktop rendering under a virtual display, and checks two browser player sessions. Test tooling is not required to run the game.
+

@@ -17,6 +17,8 @@ The supplied 516-line brainstorming is the design source. The original wording s
 | Utility | Targeted item architecture | UFO, Contractor, speed/wrath, Chaos, Thor's Lager, Pacify, Rabid Bite, Conch, Wendigo, Double Agent, Tidal Shift, portals, no-killing zone, Hilux, Kragle, retreat, Dolphin Spirit, royal protection, Wizard, Wasps, Spore, Secret Service, Bulldoze, Logistics Sabotage, Pop-up Pawn |
 | Presentation | Green/gold theme, glyphs, highlights, chronicle | Pixel art, royal pixel font, reveal animations, sound |
 | Multiplayer | Java host, browser clients, private hands, seat reconnect | Save/load, rematch consent, lobby, disconnect pause |
-| Solo | Local two-player | Computer opponent |
+| Solo | Easy/Normal/Hard/Expert bots, native menu and browser solo | Bot tuning, broader item tactics |
+| Roguelike | Six battles, bosses, route choices, persistent army, three-choice rewards, four run relics | Save/resume, more encounters, between-run progression |
 
 No paid infrastructure is required; keep the self-hosted option as the game grows.
+

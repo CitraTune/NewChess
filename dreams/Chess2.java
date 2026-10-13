@@ -62,7 +62,8 @@ public class Chess2 {
     record Card(String id,int born) {}
     record Hazard(String type,int owner,int until) {}
     record Grave(int type,int color) {}
-    static class Piece {
+    static class Piece implements Cloneable {
+        public Piece clone() throws CloneNotSupportedException {return (Piece)super.clone();}
         int id,type,color,x,y,sx,sy,frozen,armor,rat,vest,blanket,fogTurns,hp=4;
         boolean moved,shield,magic,boots,rein,spider,noPromote;
         String upgrade="",fusion="";
@@ -81,7 +82,9 @@ public class Chess2 {
     static String side(int c){return c==0?"Ivory":"Onyx";}
     static String square(int x,int y){return ""+(char)('a'+x)+(y+1);}
     static int distance(int x,int y,int a,int b){return Math.max(Math.abs(x-a),Math.abs(y-b));}
-    static class Game {
+    static class Game implements Cloneable {
+        public Game clone() throws CloneNotSupportedException {return (Game)super.clone();}
+        boolean campaignBattle;int bountyBonus;
         int size=8,turn=0,ply=0,nextId=1,winner=-1,reveals=0,union=-1,unionPly=-1,freeUsed=-1,shotsId=-1,shots=0;
         boolean shopUnlocked,cardsUnlocked,fog,shopOpen,shopFree;
         Random rng;
@@ -165,7 +168,7 @@ public class Chess2 {
             if(!ranged&&victim.upgrade.equals("Golem")&&attacker!=null&&distance(victim.x,victim.y,attacker.x,attacker.y)>2){note("Golem resists a distant attack.");return false;}
             if(victim.fusion.equals("Iron Warden")&&victim.hp>1){victim.hp--;note("Iron Warden: "+victim.hp+" armor remaining.");return false;}
             pieces.remove(victim);graves.add(new Grave(victim.type,victim.color));
-            if(attacker!=null&&attacker.color!=victim.color){players[attacker.color].money+=VALUES[victim.type];note(side(attacker.color)+" captures "+victim.name()+" · +$"+VALUES[victim.type]+(victim.type==5?" — the battle continues!":""));}
+            if(attacker!=null&&attacker.color!=victim.color){players[attacker.color].money+=VALUES[victim.type]+(attacker.color==0?bountyBonus:0);note(side(attacker.color)+" captures "+victim.name()+" · +$"+VALUES[victim.type]+(victim.type==5?" — the battle continues!":""));}
             else note(victim.name()+" falls.");
             if(players[victim.color].insured)players[victim.color].money+=40;
             if(victim.rein)spawnNear(0,victim.color,victim.x,victim.y,1,false);
@@ -183,7 +186,7 @@ public class Chess2 {
             }
             trim(turn);ply++;turn=1-turn;shopOpen=false;freeUsed=-1;shots=0;shotsId=-1;
             hazards.entrySet().removeIf(e->e.getValue().until<=ply);
-            if(ply==38&&size==8)expand();
+            if(ply==38&&size==8&&!campaignBattle)expand();
             victory();if(winner==-1)draw(turn,1,false);
         }
         Pos expanded(Pos p){return new Pos(p.x+6,p.y<4?p.y+2:p.y+10);}
@@ -368,19 +371,273 @@ public class Chess2 {
     static String effects(Game g,Piece p){
         List<String> a=new ArrayList<>();if(p.shield)a.add("Shield");if(p.magic)a.add("Magic shield");if(p.boots)a.add("Flame boots");if(p.rein)a.add("Rebirth");if(p.spider)a.add("Spider sac");if(p.frozen>g.ply)a.add("Frozen");if(p.armor>g.ply)a.add("Invulnerable");if(p.rat>g.ply)a.add("Knight movement");if(p.vest>g.ply)a.add("Ranged armor");if(p.noPromote)a.add("No promotion");if(p.fusion.equals("Iron Warden"))a.add(p.hp+" armor");return String.join(" · ",a);
     }
+
+    enum Skill {
+        EASY(0,0,0), NORMAL(1,8,400), HARD(2,6,800), EXPERT(3,5,1400);
+        final int depth,width,millis;
+        Skill(int d,int w,int m){depth=d;width=w;millis=m;}
+        static Skill parse(String s){try{return valueOf(s.toUpperCase(Locale.ROOT));}catch(Exception e){throw new IllegalArgumentException("Difficulty: easy, normal, hard or expert.");}}
+    }
+    record Choice(Map<String,String> action,Game after,double order) {}
+    static class Bot {
+        final Skill skill;final Random random;long until;int nodes;
+        Bot(Skill s,long seed){skill=s;random=new Random(seed);}
+        static Game copy(Game g){
+            try {
+                Game c=(Game)g.clone();
+                c.pieces=new ArrayList<>();for(Piece p:g.pieces)c.pieces.add((Piece)p.clone());
+                c.players=new Player[2];for(int i=0;i<2;i++){Player p=g.players[i],q=new Player();q.money=p.money;q.limit=p.limit;q.insured=p.insured;q.hand=new ArrayList<>(p.hand);q.items=new ArrayList<>(p.items);c.players[i]=q;}
+                c.tiles=new LinkedHashMap<>(g.tiles);c.hazards=new LinkedHashMap<>(g.hazards);c.stock=new ArrayList<>(g.stock);c.graves=new ArrayList<>(g.graves);c.log=new ArrayList<>(g.log);
+                // Search never copies the real random generator or predicts unrevealed tiles.
+                c.rng=new Random(0);return c;
+            }catch(CloneNotSupportedException e){throw new AssertionError(e);}
+        }
+        static double value(Piece p){return VALUES[p.type]+(!p.upgrade.isEmpty()?100:0)+(!p.fusion.isEmpty()?400:0)+(p.shield?40:0)+(p.magic?20:0)+(p.boots?35:0);}
+        static double evaluate(Game g,int color){
+            if(g.winner!=-1)return g.winner==color?100000:g.winner==2?0:-100000;
+            double score=0;
+            for(Piece p:g.pieces){
+                double forward=p.color==0?g.size-1-p.y:p.y;
+                int nearest=g.size;
+                for(Piece q:g.pieces)if(q.color!=p.color)nearest=Math.min(nearest,distance(p.x,p.y,q.x,q.y));
+                double position=(p.type==0||p.type==6?forward*3:0)+(g.size-nearest)*1.5-(p.frozen>g.ply?15:0);
+                score+=(p.color==color?1:-1)*(value(p)+position);
+            }
+            // Hand identities are deliberately excluded; only public hand counts matter.
+            return score+(g.players[color].money-g.players[1-color].money)*.12+(g.players[color].hand.size()-g.players[1-color].hand.size())*3+(g.players[color].items.size()-g.players[1-color].items.size())*12;
+        }
+        static List<Map<String,String>> movement(Game g){
+            List<Map<String,String>> a=new ArrayList<>();
+            for(Piece p:g.pieces)if(p.color==g.turn){
+                for(Pos m:g.moves(p))a.add(args("op","move","id",""+p.id,"x",""+m.x,"y",""+m.y));
+                if(p.frozen<=g.ply&&(p.upgrade.equals("M1 Abrams")||!p.fusion.isEmpty()))
+                    for(Piece q:g.pieces)if(q.color!=p.color&&distance(p.x,p.y,q.x,q.y)<=3)a.add(args("op","ability","id",""+p.id,"ability","shoot","x",""+q.x,"y",""+q.y));
+                if(p.frozen<=g.ply&&p.fusion.equals("Archmage")&&g.shots==0){
+                    for(int dx=-1;dx<=1;dx++)for(int dy=-1;dy<=1;dy++)if(g.empty(p.x+dx,p.y+dy))a.add(args("op","ability","id",""+p.id,"ability","summon","x",""+(p.x+dx),"y",""+(p.y+dy)));
+                    for(Piece q:g.pieces)if(q.color!=p.color)for(int dx=-1;dx<=1;dx++)for(int dy=-1;dy<=1;dy++)if(g.empty(q.x+dx,q.y+dy)&&distance(p.x,p.y,q.x+dx,q.y+dy)>5)a.add(args("op","ability","id",""+p.id,"ability","teleport","x",""+(q.x+dx),"y",""+(q.y+dy)));
+                }
+                if(p.frozen<=g.ply&&p.upgrade.equals("Divine Cleric")&&g.shots==0)
+                    for(int i=0;i<g.graves.size();i++)if(g.graves.get(i).color==g.turn&&g.players[g.turn].money>=(VALUES[g.graves.get(i).type]+1)/2){
+                        outer:for(int dx=-2;dx<=2;dx++)for(int dy=-2;dy<=2;dy++)if(g.empty(p.x+dx,p.y+dy)){a.add(args("op","ability","id",""+p.id,"ability","revive","grave",""+i,"x",""+(p.x+dx),"y",""+(p.y+dy)));break outer;}
+                    }
+            }
+            a.add(args("op","pass"));return a;
+        }
+        static void consumables(Game g,List<Map<String,String>> actions){
+            if(g.shots>0)return;
+            Player player=g.players[g.turn];
+            for(boolean card:new boolean[]{true,false})for(int i=0;i<(card?player.hand.size():player.items.size());i++){
+                Def d=def(card?CARDS:ITEMS,card?player.hand.get(i).id:player.items.get(i));
+                // Avoid voluntary skips, concealment, and irrelevant movement churn.
+                if(List.of("traffic","blanket").contains(d.id))continue;
+                if(d.target.equals("none")){actions.add(args("op",card?"card":"item","index",""+i));continue;}
+                List<Pos> targets=new ArrayList<>();
+                if(List.of("ally","enemy","pawn","queen").contains(d.target))for(Piece p:g.pieces)if(g.target(d.target,p.x,p.y))targets.add(p.pos());
+                if(d.target.equals("empty")){
+                    int rank=g.size==8?(g.turn==0?6:1):(g.turn==0?16:3);
+                    for(int x=0;x<g.size;x++)if(g.empty(x,rank))targets.add(new Pos(x,rank));
+                }
+                if(d.target.equals("tile")){
+                    targets.addAll(g.hazards.keySet());
+                    for(Piece p:g.pieces)if(p.color!=g.turn){targets.add(p.pos());for(int dx:new int[]{-2,2})if(g.inside(p.x+dx,p.y))targets.add(new Pos(p.x+dx,p.y));}
+                    targets.add(new Pos(g.size/2,g.size/2));
+                }
+                for(Pos t:new LinkedHashSet<>(targets))actions.add(args("op",card?"card":"item","index",""+i,"x",""+t.x,"y",""+t.y));
+            }
+        }
+        List<Choice> candidates(Game g,boolean prepare){
+            List<Map<String,String>> actions=movement(g);if(prepare)consumables(g,actions);
+            List<Choice> choices=new ArrayList<>();
+            for(Map<String,String> action:actions){
+                if(Thread.currentThread().isInterrupted())break;
+                Game c=copy(g);c.tiles.entrySet().removeIf(e->e.getValue().equals("mystery"));
+                try{c.action(action);double score=evaluate(c,g.turn);
+                    if(action.get("op").equals("pass"))score-=8;
+                    if(action.get("op").equals("move")&&"mystery".equals(g.tiles.get(new Pos(num(action,"x"),num(action,"y")))))score+=5;
+                    choices.add(new Choice(action,c,score));
+                }catch(IllegalArgumentException ignored){}
+            }
+            choices.sort(Comparator.comparingDouble(Choice::order).reversed());return choices;
+        }
+        double search(Game g,int color,int depth){
+            if(depth==0||g.winner!=-1||System.nanoTime()>until||nodes++>900||Thread.currentThread().isInterrupted())return evaluate(g,color);
+            List<Choice> choices=candidates(g,false);if(choices.isEmpty())return evaluate(g,color);
+            boolean max=g.turn==color;double best=max?-1e9:1e9;
+            for(int i=0;i<Math.min(skill.width,choices.size());i++){
+                double v=search(choices.get(i).after,color,depth-1);best=max?Math.max(best,v):Math.min(best,v);
+                if(System.nanoTime()>until)break;
+            }
+            return best;
+        }
+        Map<String,String> choose(Game g,boolean prepare){
+            if(g.shopOpen){
+                Piece up=g.pieces.stream().filter(p->p.color==g.turn&&PATHS[p.type].length>0&&p.upgrade.isEmpty()&&p.fusion.isEmpty()).findFirst().orElse(null);
+                if(up!=null&&g.players[g.turn].money>=250)return args("op","upgrade","id",""+up.id,"path",PATHS[up.type][skill.ordinal()%2]);
+                for(String id:g.stock){Def d=def(ITEMS,id);if(g.players[g.turn].money>=d.cost)return args("op","buy","item",id);}
+                return args("op","leave");
+            }
+            if(prepare&&skill!=Skill.EASY&&g.shopUnlocked&&g.shots==0&&g.players[g.turn].money>=350&&g.pieces.stream().anyMatch(p->p.color==g.turn&&PATHS[p.type].length>0&&p.upgrade.isEmpty()&&p.fusion.isEmpty()))return args("op","shop");
+            until=System.nanoTime()+skill.millis*1_000_000L;nodes=0;
+            List<Choice> choices=candidates(g,prepare&&skill!=Skill.EASY);
+            if(choices.isEmpty())return args("op","pass");
+            if(skill==Skill.EASY){
+                List<Choice> moves=choices.stream().filter(c->!c.action.get("op").equals("pass")).toList();
+                if(moves.isEmpty())return choices.get(0).action;
+                return moves.get(random.nextInt(moves.size())).action;
+            }
+            double best=-1e9;Map<String,String> answer=choices.get(0).action;int width=Math.min(choices.size(),skill.width);
+            for(int i=0;i<width;i++){
+                Choice c=choices.get(i);double value;
+                if(skill==Skill.NORMAL){
+                    value=c.order;
+                    if(c.action.get("op").equals("move")){
+                        Piece moved=c.after.piece(num(c.action,"id"));double risk=0;
+                        if(moved!=null)for(Piece enemy:c.after.pieces)if(enemy.color!=g.turn&&c.after.moves(enemy).contains(moved.pos()))risk=Math.max(risk,value(moved)*.7);
+                        value-=risk;
+                    }
+                    value+=random.nextDouble()*12;
+                }else value=search(c.after,g.turn,skill.depth-1)+random.nextDouble()*.1;
+                // Zero-turn preparation must improve the position rather than loop forever.
+                if(c.after.ply==g.ply&&evaluate(c.after,g.turn)<=evaluate(g,g.turn)+1)value-=30;
+                if(value>best){best=value;answer=c.action;}
+                if(System.nanoTime()>until&&skill!=Skill.NORMAL)break;
+            }
+            return answer;
+        }
+    }
+    record Reward(String id,String title,String text) {}
+    static class Campaign {
+        final long seed;final Random rng;int floor=1;boolean elite;String phase="battle",route="skirmish";
+        final Set<String> relics=new LinkedHashSet<>();List<Reward> rewards=new ArrayList<>();
+        Campaign(long seed){this.seed=seed;rng=new Random(seed);}
+        Game first(){
+            Game g=new Game(seed);g.pieces.clear();g.tiles.clear();g.players[0].money=150;
+            for(int type:new int[]{5,1,3,0,0})g.add(type,0,0,0);
+            return encounter(g,"skirmish");
+        }
+        Game encounter(Game old,String path){
+            route=path;elite=path.equals("elite")||floor%3==0;
+            Game g=new Game(rng.nextLong());g.pieces.clear();g.tiles.clear();g.campaignBattle=true;g.shopUnlocked=true;g.cardsUnlocked=true;
+            g.players[0]=Bot.copy(old).players[0];g.players[0].hand.clear();g.graves=new ArrayList<>(old.graves);g.bountyBonus=relics.contains("hunter")?25:0;
+            List<Piece> survivors=old.pieces.stream().filter(p->p.color==0).toList();int slot=0;
+            for(Piece original:survivors){
+                if(slot>=32)break;
+                Piece p;
+                try{p=(Piece)original.clone();}catch(Exception e){throw new AssertionError(e);}
+                p.id=g.nextId++;p.x=slot%8;p.y=7-slot/8;p.sx=p.x;p.sy=p.y;p.moved=false;p.frozen=p.armor=p.rat=p.vest=p.blanket=p.fogTurns=0;p.hp=4;
+                g.pieces.add(p);slot++;
+            }
+            int count=3+floor+(elite?2:0);
+            List<Integer> enemyFiles=new ArrayList<>(List.of(0,1,2,3,4,5,6,7));Collections.shuffle(enemyFiles,rng);
+            for(int i=0;i<count;i++){
+                int type=i==0?5:i==1&&floor%3==0?4:i%4==0?3:1+rng.nextInt(Math.min(3,1+floor/2));
+                Piece p=g.add(type,1,enemyFiles.get(i%8),i/8);
+                if(elite&&i==0){p.shield=true;p.magic=true;}
+                if(floor>=4&&i==2){p.type=3;p.upgrade="Golem";}
+            }
+            if(relics.contains("aegis"))g.pieces.stream().filter(p->p.color==0).limit(2).forEach(p->p.shield=true);
+            if(relics.contains("purse"))g.players[0].money+=60;
+            if(path.equals("supply")){g.players[0].money+=40;g.players[0].items.add("shield");}
+            for(int i=0;i<6;i++){Pos p=new Pos(rng.nextInt(8),2+rng.nextInt(3));if(g.empty(p.x,p.y))g.tiles.put(p,"mystery");}
+            g.reveals=2;g.restock();g.draw(0,relics.contains("charm")?3:2,false);g.draw(1,2,false);
+            phase="battle";g.note("THE SHATTERED CROWN · battle "+floor+"/6 · "+(floor%3==0?"BOSS":elite?"ELITE":path.toUpperCase(Locale.ROOT))+".");return g;
+        }
+        void observe(Game g){
+            if(!phase.equals("battle")||g.winner==-1)return;
+            if(g.winner!=0){phase="defeat";g.note("The expedition falls. Start a new run to try another seed.");return;}
+            g.players[0].money+=elite?180:100;
+            if(floor==6){phase="victory";g.note("THE SHATTERED CROWN IS YOURS. Six battles survived.");return;}
+            phase="reward";List<Reward> pool=new ArrayList<>();
+            int troops=(int)g.pieces.stream().filter(p->p.color==0).count();
+            if(troops<30){pool.add(new Reward("knight","Recruit a knight","A new knight joins your surviving army."));pool.add(new Reward("bishop","Recruit a bishop","A new bishop joins your surviving army."));pool.add(new Reward("rook","Recruit a rook","A new rook joins your surviving army."));}
+            pool.add(new Reward("gold","War chest","Gain $180 to spend in future battles."));
+            pool.add(new Reward("supplies","Protective supplies","Gain a Shield and a Magic Shield."));
+            if(!relics.contains("aegis"))pool.add(new Reward("aegis","Aegis Banner","Permanent run relic: two survivors start every battle shielded."));
+            if(!relics.contains("purse"))pool.add(new Reward("purse","Bottomless Purse","Permanent run relic: gain $60 at each battle start."));
+            if(!relics.contains("charm"))pool.add(new Reward("charm","Scholar's Charm","Permanent run relic: begin each battle with 3 cards."));
+            if(!relics.contains("hunter"))pool.add(new Reward("hunter","Hunter's Seal","Permanent run relic: friendly captures earn $25 extra."));
+            for(Piece p:g.pieces)if(p.color==0&&PATHS[p.type].length>0&&p.upgrade.isEmpty()&&p.fusion.isEmpty()){String path=PATHS[p.type][rng.nextInt(2)];pool.add(new Reward("forge:"+p.id+":"+path,"Royal forge: "+path,"Upgrade this survivor for free."));break;}
+            if(troops<30&&g.graves.stream().anyMatch(v->v.color==0))pool.add(new Reward("revive","Second chance","Restore your most recently fallen unit as a base piece."));
+            Collections.shuffle(pool,rng);rewards=new ArrayList<>(pool.subList(0,3));g.note("Choose one of three rewards, then choose your next route.");
+        }
+        void reward(Game g,String id){
+            require(phase.equals("reward")&&rewards.stream().anyMatch(r->r.id.equals(id)),"Choose one of the offered rewards.");
+            if(List.of("aegis","purse","charm","hunter").contains(id))relics.add(id);
+            else if(id.equals("gold"))g.players[0].money+=180;
+            else if(id.equals("supplies")){g.players[0].items.add("shield");g.players[0].items.add("magic");}
+            else if(id.startsWith("forge:")){String[] p=id.split(":",3);Piece piece=g.piece(Integer.parseInt(p[1]));require(piece!=null,"That survivor is unavailable.");piece.upgrade=p[2];}
+            else {
+                int type=id.equals("knight")?1:id.equals("bishop")?2:3;
+                if(id.equals("revive"))for(int i=g.graves.size()-1;i>=0;i--)if(g.graves.get(i).color==0){type=g.graves.remove(i).type;break;}
+                boolean added=false;for(int y=7;y>=0&&!added;y--)for(int x=0;x<8&&!added;x++)if(g.empty(x,y)){g.add(type,0,x,y);added=true;}
+                require(added,"Your army is full.");
+            }
+            phase="route";rewards.clear();g.note("Reward claimed. Choose the next route.");
+        }
+        Game route(Game g,String id){
+            require(phase.equals("route"),"Claim a reward first.");
+            boolean boss=(floor+1)%3==0;
+            require(boss?id.equals("boss"):List.of("supply","elite").contains(id),"Choose an available route.");
+            floor++;return encounter(g,id);
+        }
+        Map<String,Object> state(){
+            List<Object> offered=new ArrayList<>();for(Reward r:rewards)offered.add(map("id",r.id,"title",r.title,"text",r.text));
+            return map("floor",floor,"total",6,"phase",phase,"seed",Long.toString(seed),"relics",new ArrayList<>(relics),"rewards",offered,"nextBoss",(floor+1)%3==0,"elite",elite);
+        }
+    }
+
     static class Session implements AutoCloseable {
         Game g;long revision=0,deadline;final int seconds;final boolean online;
+        final Skill skill;final Bot bot;final Campaign campaign;
+        ExecutorService botPool;boolean thinking,closed;int preparations;long nextBotAt;
+        boolean solo(){return bot!=null;}
+        boolean battling(){return campaign==null||campaign.phase.equals("battle");}
         HttpServer server;ExecutorService httpPool;ScheduledExecutorService clock;
         String[] tokens={token(),token()};
-        Session(Game game,boolean online,int seconds){g=game;this.online=online;this.seconds=seconds;resetClock();}
+        Session(Game game,boolean online,int seconds){this(game,online,seconds,null,false,0);}
+        Session(Game game,boolean online,int seconds,Skill skill,boolean rogue,long seed){
+            this.skill=skill;this.bot=skill==null?null:new Bot(skill,seed^0xB07);
+            campaign=rogue?new Campaign(seed):null;g=rogue?campaign.first():game;
+            this.online=online;this.seconds=seconds;
+            if(bot!=null)botPool=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"chess-bot");t.setDaemon(true);return t;});
+            resetClock();
+        }
+        void observe(){if(campaign!=null)campaign.observe(g);}
+        void queueBot(){
+            if(bot==null||thinking||closed||g.turn!=1||g.winner!=-1||!battling()||System.currentTimeMillis()<nextBotAt)return;
+            thinking=true;long expected=revision;Game snapshot=Bot.copy(g);boolean prepare=preparations<4;
+            botPool.submit(()->{
+                Map<String,String> a;
+                try{a=bot.choose(snapshot,prepare);}catch(Exception e){a=args("op","pass");}
+                synchronized(this){
+                    try{
+                        if(closed||revision!=expected||g.turn!=1||g.winner!=-1||!battling())return;
+                        int before=g.ply;
+                        try{g.action(a);}catch(IllegalArgumentException e){if(g.shopOpen)g.closeShop();else g.action(args("op","pass"));}
+                        revision++;preparations++;
+                        if(before!=g.ply){resetClock();preparations=0;}
+                        observe();nextBotAt=System.currentTimeMillis()+350;
+                    }finally{thinking=false;}
+                }
+            });
+        }
         void resetClock(){deadline=System.currentTimeMillis()+seconds*1000L;}
         synchronized void action(int role,Map<String,String> a){
+            require(!solo()||role==0,"Onyx is controlled by the bot.");
+            if(campaign!=null&&List.of("reward","route").contains(a.get("op"))){
+                require(role==0&&Long.toString(revision).equals(a.get("revision")),"The run changed. Try again.");
+                if(a.get("op").equals("reward"))campaign.reward(g,a.get("choice"));
+                else {g=campaign.route(g,a.get("choice"));preparations=0;resetClock();}
+                revision++;return;
+            }
+            require(battling(),"Choose your run reward or route first.");
             require(role==g.turn,"Wait for your turn.");
             require(Long.toString(revision).equals(a.get("revision")),"The board changed. Select your action again.");
-            int before=g.ply;g.action(a);revision++;if(before!=g.ply)resetClock();
+            int before=g.ply;g.action(a);revision++;if(before!=g.ply){resetClock();preparations=0;}observe();
         }
         synchronized void tick(){
-            if(seconds>0&&g.winner==-1&&System.currentTimeMillis()>=deadline){g.note("Time expired.");g.shopOpen=false;g.end();revision++;resetClock();}
+            if(seconds>0&&g.winner==-1&&battling()&&System.currentTimeMillis()>=deadline){g.note("Time expired.");g.shopOpen=false;g.end();revision++;preparations=0;resetClock();observe();}
+            queueBot();
         }
         synchronized Map<String,Object> state(int role){
             List<Object> ps=new ArrayList<>(),ts=new ArrayList<>(),hs=new ArrayList<>(),hand=new ArrayList<>(),inv=new ArrayList<>(),offers=new ArrayList<>(),fallen=new ArrayList<>();
@@ -396,7 +653,7 @@ public class Chess2 {
             if(g.shopUnlocked)for(String id:g.stock){Def d=def(ITEMS,id);offers.add(map("id",id,"name",d.name,"cost",d.cost,"text",d.text));}
             for(int i=0;i<g.graves.size();i++){Grave v=g.graves.get(i);if(v.color==role)fallen.add(map("index",i,"name",TYPES[v.type],"cost",(VALUES[v.type]+1)/2));}
             int remain=seconds==0?0:(int)Math.max(0,(deadline-System.currentTimeMillis()+999)/1000);
-            return map("revision",revision,"role",role,"turn",g.turn,"round",g.ply/2+1,"ply",g.ply,"size",g.size,"winner",g.winner,"pieces",ps,"tiles",ts,"hazards",hs,"fog",g.fog,"shop",g.shopUnlocked,"shopOpen",g.shopOpen&&role==g.turn,"shopFree",g.shopFree,"cards",g.cardsUnlocked,"hand",hand,"items",inv,"stock",offers,"money",List.of(g.players[0].money,g.players[1].money),"handCount",List.of(g.players[0].hand.size(),g.players[1].hand.size()),"limit",g.players[role].limit,"graves",fallen,"log",List.copyOf(g.log),"seconds",seconds,"remaining",remain,"shots",g.shots,"shotsId",g.shotsId);
+            return map("revision",revision,"role",role,"turn",g.turn,"round",g.ply/2+1,"ply",g.ply,"size",g.size,"winner",g.winner,"pieces",ps,"tiles",ts,"hazards",hs,"fog",g.fog,"shop",g.shopUnlocked,"shopOpen",g.shopOpen&&role==g.turn,"shopFree",g.shopFree,"cards",g.cardsUnlocked,"hand",hand,"items",inv,"stock",offers,"money",List.of(g.players[0].money,g.players[1].money),"handCount",List.of(g.players[0].hand.size(),g.players[1].hand.size()),"limit",g.players[role].limit,"graves",fallen,"log",List.copyOf(g.log),"seconds",seconds,"remaining",remain,"shots",g.shots,"shotsId",g.shotsId,"mode",campaign!=null?"roguelike":solo()?"solo":"multiplayer","difficulty",skill==null?"":skill.name().toLowerCase(Locale.ROOT),"thinking",thinking,"run",campaign==null?null:campaign.state());
         }
         void start(String bind,int port)throws IOException{
             server=HttpServer.create(new InetSocketAddress(bind,port),16);
@@ -411,6 +668,7 @@ public class Chess2 {
                 if(path.equals("/")&&method.equals("GET")){send(ex,200,"text/html",PAGE);return;}
                 if(!path.equals("/state")&&!path.equals("/action")){send(ex,404,"text/plain","Not found");return;}
                 String provided=ex.getRequestHeaders().getFirst("X-Chess-Token");int role=Objects.equals(tokens[0],provided)?0:Objects.equals(tokens[1],provided)?1:-1;
+                if(solo()&&role==1){send(ex,403,"application/json",json(map("error","Onyx is controlled by the bot.")));return;}
                 if(role<0){send(ex,401,"application/json",json(map("error","Open the complete player invite link from the host.")));return;}
                 if(path.equals("/state")&&method.equals("GET")){send(ex,200,"application/json",json(state(role)));return;}
                 if(!path.equals("/action")||!method.equals("POST")){send(ex,405,"application/json",json(map("error","Method not allowed.")));return;}
@@ -421,7 +679,7 @@ public class Chess2 {
             catch(Exception e){send(ex,500,"application/json",json(map("error","Server error. Please retry.")));e.printStackTrace();}
             finally{ex.close();}
         }
-        public void close(){if(server!=null)server.stop(0);if(httpPool!=null)httpPool.shutdownNow();if(clock!=null)clock.shutdownNow();}
+        public synchronized void close(){closed=true;if(botPool!=null)botPool.shutdownNow();if(server!=null)server.stop(0);if(httpPool!=null)httpPool.shutdownNow();if(clock!=null)clock.shutdownNow();}
     }
     static String token(){byte[] b=new byte[24];new SecureRandom().nextBytes(b);return Base64.getUrlEncoder().withoutPadding().encodeToString(b);}
     static Map<String,String> parseForm(String s){
@@ -467,7 +725,7 @@ public class Chess2 {
             frame.addWindowListener(new WindowAdapter(){public void windowClosed(WindowEvent e){refresh.stop();s.close();}});
             synchronized(s){render();}frame.setLocationRelativeTo(null);frame.setVisible(true);refresh.start();
         }
-        int role(){return s.online?0:s.g.turn;}
+        int role(){return s.online||s.solo()?0:s.g.turn;}
         JButton button(String text,Runnable fn){
             JButton b=new JButton(text);b.setBackground(new Color(44,60,43));b.setForeground(TEXT);b.setFocusPainted(false);b.setMargin(new Insets(9,11,9,11));b.addActionListener(e->fn.run());return b;
         }
@@ -478,7 +736,7 @@ public class Chess2 {
         }
         void updateStatus(){
             Game g=s.g;String t=g.winner==-1?side(g.turn)+" to move":g.winner==2?"Draw":side(g.winner)+" wins";
-            status.setText("<html>&nbsp;&nbsp; ROUND "+(g.ply/2+1)+" · "+t+"<br>&nbsp;&nbsp; Ivory $"+g.players[0].money+" · Onyx $"+g.players[1].money+(s.seconds>0?" · "+Math.max(0,(s.deadline-System.currentTimeMillis()+999)/1000)+"s":"")+"<br>&nbsp;&nbsp; "+(s.online?"HOSTING · you are Ivory":"LOCAL TWO-PLAYER")+"</html>");
+            status.setText("<html>&nbsp;&nbsp; ROUND "+(g.ply/2+1)+" · "+t+"<br>&nbsp;&nbsp; Ivory $"+g.players[0].money+" · Onyx $"+g.players[1].money+(s.seconds>0?" · "+Math.max(0,(s.deadline-System.currentTimeMillis()+999)/1000)+"s":"")+"<br>&nbsp;&nbsp; "+(s.solo()?(s.campaign!=null?"THE SHATTERED CROWN · ":"SOLO · ")+s.skill.name()+(s.thinking?" · bot thinking…":""):s.online?"HOSTING · you are Ivory":"LOCAL TWO-PLAYER")+"</html>");
         }
         void arm(String kind,int i,Def d){
             if(d.target.equals("none")){run(args("op",kind,"index",""+i));return;}
@@ -500,6 +758,19 @@ public class Chess2 {
         void render(){
             Game g=s.g;if(displayed!=s.revision){mode="";selected=-1;}displayed=s.revision;updateStatus();sidebar.removeAll();hand.removeAll();
             int role=role();boolean can=role==g.turn&&g.winner==-1;Piece p=g.piece(selected);
+            if(s.campaign!=null){
+                Campaign c=s.campaign;label("THE SHATTERED CROWN · "+c.floor+"/6",GOLD);
+                label("Seed "+c.seed+"\nRun relics: "+(c.relics.isEmpty()?"none":String.join(", ",c.relics)),MUTED);
+                if(c.phase.equals("reward")){label("CHOOSE ONE REWARD",GOLD);for(Reward r:c.rewards){JButton b=button(r.title,()->run(args("op","reward","choice",r.id)));b.setToolTipText(r.text);sidebar.add(b);label(r.text,MUTED);}}
+                if(c.phase.equals("route")){
+                    label("CHOOSE YOUR ROUTE",GOLD);
+                    if((c.floor+1)%3==0)sidebar.add(button("Face the boss →",()->run(args("op","route","choice","boss"))));
+                    else {sidebar.add(button("Supply route · $40 + Shield",()->run(args("op","route","choice","supply"))));sidebar.add(button("Elite route · stronger enemy, +$180",()->run(args("op","route","choice","elite"))));}
+                }
+                if(c.phase.equals("victory"))label("RUN WON · Six battles survived!",GOLD);
+                if(c.phase.equals("defeat"))label("RUN LOST · Your army has fallen.",GOLD);
+                if(!c.phase.equals("battle")){board.repaint();sidebar.revalidate();sidebar.repaint();hand.revalidate();hand.repaint();return;}
+            }
             label(g.size==8?"THE OPENING FIELD":"THE EXPANSE",GOLD);
             label("Kings can die. The battle continues.\nEliminate the enemy army to win.",MUTED);
             if(g.winner!=-1)label(g.winner==2?"A spectacular draw.":side(g.winner)+" reigns victorious.",GOLD);
@@ -629,13 +900,13 @@ main{max-width:1380px;margin:auto;padding:30px 4%}.intro{display:flex;justify-co
 #hand{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px}.card{text-align:left;min-height:123px;display:flex;flex-direction:column;gap:8px;background:linear-gradient(140deg,#37452b,#202e23);padding:12px}.card b{font:15px Georgia;color:#e7d9b0}.card small{font:10px/1.5 Arial;color:var(--muted)}.armed{border-color:#ffe2a0!important;background:#455133!important}.relic{width:100%;text-align:left;margin:5px 0}.relic small{display:block;font:10px/1.5 Arial;color:var(--muted);margin-top:5px}
 #selected{font:12px/1.6 Arial;color:var(--muted)}#selected b{display:block;font:20px Georgia;color:var(--text);margin:10px 0}#selected button{display:block;width:100%;margin:7px 0}.bazaar{background:radial-gradient(ellipse at top right,#6b613144,transparent),var(--panel)}
 #log{max-height:260px;overflow:auto}#log p{font:11px/1.5 Arial;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:10px}.empty{border:1px dashed var(--line);padding:18px;color:var(--muted);font:12px/1.7 Arial;grid-column:1/-1}
-dialog{background:#1e2b20;color:var(--text);border:1px solid #68724c;border-radius:8px;padding:28px;width:calc(100% - 30px);max-width:800px}dialog::backdrop{background:#07130ce8;backdrop-filter:blur(3px)}.heading{display:flex;justify-content:space-between;align-items:start;gap:12px}.heading h2{font-weight:400;font-size:28px;margin:5px 0 15px}dialog p{font:13px/1.65 Arial;color:var(--muted)}.shopgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.offer{padding:17px;border:1px solid var(--line);border-radius:5px}.offer h3{font-size:20px;font-weight:400;color:var(--gold)}.offer button{display:block;width:100%;margin:8px 0}.tabs{display:flex;gap:8px;margin:15px 0}.tabs .active{border-color:var(--gold);color:var(--gold)}#network{font:11px Arial;color:var(--muted)}footer{color:var(--muted);font:10px Arial;border-top:1px solid var(--line);padding:22px 0;margin-top:25px}
+dialog{background:#1e2b20;color:var(--text);border:1px solid #68724c;border-radius:8px;padding:28px;width:calc(100% - 30px);max-width:800px}dialog::backdrop{background:#07130ce8;backdrop-filter:blur(3px)}.heading{display:flex;justify-content:space-between;align-items:start;gap:12px}.heading h2{font-weight:400;font-size:28px;margin:5px 0 15px}dialog p{font:13px/1.65 Arial;color:var(--muted)}.shopgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.offer{padding:17px;border:1px solid var(--line);border-radius:5px}.offer h3{font-size:20px;font-weight:400;color:var(--gold)}.offer button{display:block;width:100%;margin:8px 0}.tabs{display:flex;gap:8px;margin:15px 0}.tabs .active{border-color:var(--gold);color:var(--gold)}#runPanel button{display:block;width:100%;margin:8px 0}#network{font:11px Arial;color:var(--muted)}footer{color:var(--muted);font:10px Arial;border-top:1px solid var(--line);padding:22px 0;margin-top:25px}
 @media(max-width:1050px){.layout{grid-template-columns:165px minmax(280px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:15px}.right .panel:last-child{grid-column:1/-1}.glyph{font-size:clamp(28px,6vw,64px)}}
 @media(max-width:640px){header{padding:14px}.logo{font-size:22px}main{padding:20px 12px}.intro{margin-bottom:20px}h1{font-size:30px}.intro .muted{display:none}.layout{display:flex;flex-direction:column;gap:12px}.left{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}.left .panel{margin:0}.left .selection{grid-column:1/-1}.center,.right{width:100%}.right{gap:10px}.glyph{font-size:clamp(26px,9vw,53px)}.large .glyph{font-size:clamp(10px,3.3vw,19px)}.shopgrid{grid-template-columns:1fr}#hand{grid-template-columns:repeat(auto-fit,minmax(95px,1fr))}.panel{padding:13px}.badge{font-size:8px}.board-wrap{border-width:4px}}
 </style>
 <header><div class="logo">♞ CHESS <b>II</b><small>AI version with younger me's dreams</small></div><div><span id="network">Connecting…</span> <button id="rulesBtn">How to play</button></div></header>
 <main><section class="intro"><div><div class="eyebrow">A VERY UNREASONABLE GAME OF CHESS</div><h1>The crown is optional.<br><em>The chaos isn't.</em></h1></div><span class="muted">Java-powered · privately hosted<br>No subscriptions. No rented server.</span></section>
-<div class="layout"><aside class="left"><section class="panel"><div class="eyebrow" id="round">ROUND 01</div><h2 id="turn">Connecting…</h2><p class="muted" id="you"></p><p class="muted" id="timer"></p><button class="primary" id="pass" disabled>End turn →</button></section><section class="panel"><div id="money"></div><p class="muted" id="world">Discover the mystery tiles.</p></section><section class="panel selection"><div class="eyebrow">ON THE FIELD</div><div id="selected">Select a piece to inspect its powers.</div></section></aside>
+<div class="layout"><aside class="left"><section id="runPanel" class="panel" hidden></section><section class="panel"><div class="eyebrow" id="round">ROUND 01</div><h2 id="turn">Connecting…</h2><p class="muted" id="you"></p><p class="muted" id="timer"></p><button class="primary" id="pass" disabled>End turn →</button></section><section class="panel"><div id="money"></div><p class="muted" id="world">Discover the mystery tiles.</p></section><section class="panel selection"><div class="eyebrow">ON THE FIELD</div><div id="selected">Select a piece to inspect its powers.</div></section></aside>
 <section class="center"><div class="toolbar"><span id="field">THE OPENING FIELD</span><div><button id="cancel">Cancel target</button> <button id="flip">↻ Flip</button> <button id="zoom" hidden>Zoom</button></div></div><div class="board-wrap"><div id="board" role="grid" aria-label="Chess II battlefield"></div></div><div class="legend"><span>✦ MYSTERY TILE</span><span>● AVAILABLE MOVE</span><span id="size">8 × 8</span></div><div id="notice" role="status" aria-live="polite">Open your full invite link from the host.</div><h2 style="font-weight:400">Your hand <small class="muted" id="count"></small></h2><div id="hand"></div></section>
 <aside class="right"><section class="panel bazaar"><div class="eyebrow">POWER HAS A PRICE</div><h2>♜ The Bazaar</h2><p class="muted" id="shopHint">The first mystery tile unlocks the shop.</p><button class="gold" id="shopBtn" disabled>Enter Bazaar →</button></section><section class="panel"><div class="eyebrow">RELICS</div><div id="items"></div></section><section class="panel"><div class="eyebrow">THE CHRONICLE</div><div id="log"></div></section></aside></div>
 <footer>PLAYABLE ALPHA · one shared game, two private hands · closing the host ends the session</footer></main>
@@ -658,12 +929,12 @@ async function poll(){
  if(polling)return;polling=true;
  try{const r=await fetch('/state',{headers:{'X-Chess-Token':token},cache:'no-store',signal:AbortSignal.timeout(5000)});const v=await r.json();if(!r.ok)throw Error(v.error||'Cannot connect');connected=true;$('network').textContent='● Connected';
  if(state&&v.revision<state.revision)return;
- if(!state||v.revision!==state.revision){selected=null;armed=null;state=v;render();}else{state.remaining=v.remaining;timer();}
- if(first){first=false;flipped=v.role===1;render();notice('You are '+side(v.role)+'. '+side(v.turn)+' moves first.');}
+ if(!state||v.revision!==state.revision){selected=null;armed=null;state=v;render();}else{state.remaining=v.remaining;state.thinking=v.thinking;timer();}
+ if(first){first=false;flipped=v.role===1;render();notice('You are '+side(v.role)+'. '+(v.difficulty?'Playing the '+v.difficulty+' bot.':side(v.turn)+' moves first.'));}
  }catch(e){connected=false;$('network').textContent='○ Disconnected · retrying';notice(e.message+' — host must keep Java running.',true);}
  finally{polling=false}
 }
-function timer(){$('timer').textContent=state.seconds?state.remaining+' seconds left':'Untimed match'}
+function timer(){$('timer').textContent=(state.thinking?'Bot thinking… · ':'')+(state.seconds?state.remaining+' seconds left':'Untimed match')}
 function arm(kind,index,d){if(armed&&armed.kind===kind&&armed.index===index){armed=null;render();notice('Targeting canceled.');return}if(d.target==='none'){act({op:kind,index});return}armed={kind,index,id:d.id};selected=null;render();notice(d.name+' · '+d.text+' Choose '+d.target+'.')}
 function squareClick(x,y){
  if(!state||state.turn!==state.role||state.winner!==-1)return;
@@ -677,10 +948,16 @@ function aim(p,ability){let grave=-1;if(ability==='revive'){if(!state.graves.len
 }
 function render(){
  const s=state;if(!s)return;const can=s.turn===s.role&&s.winner===-1;
+ const panel=$('runPanel');panel.hidden=!s.run;panel.innerHTML='';
+ if(s.run){const r=s.run;panel.innerHTML='<div class="eyebrow">THE SHATTERED CROWN</div><h2>Battle '+r.floor+' / 6</h2><p class="muted">Run relics: '+esc(r.relics.join(', ')||'none')+'</p>';
+ if(r.phase==='reward'){panel.append(document.createTextNode('Choose one reward'));for(const d of r.rewards){const b=button(d.title,()=>act({op:'reward',choice:d.id}));b.title=d.text;panel.append(b);const p=document.createElement('p');p.className='muted';p.textContent=d.text;panel.append(p)}}
+ if(r.phase==='route'){panel.append(document.createTextNode('Choose your next route'));if(r.nextBoss)panel.append(button('Face the boss →',()=>act({op:'route',choice:'boss'})));else{panel.append(button('Supply route · $40 + Shield',()=>act({op:'route',choice:'supply'})));panel.append(button('Elite route · stronger foes, +$180',()=>act({op:'route',choice:'elite'})))}}
+ if(['victory','defeat'].includes(r.phase)){const h=document.createElement('h2');h.textContent=r.phase==='victory'?'RUN WON!':'RUN LOST';panel.append(h)}
+ }
  $('round').textContent='ROUND '+String(s.round).padStart(2,'0');$('turn').textContent=s.winner===-1?side(s.turn)+' to move':s.winner===2?'A spectacular draw':side(s.winner)+' wins';
- $('you').textContent='You are '+side(s.role)+(can?' · your move':' · waiting');timer();$('pass').disabled=!can||s.shopOpen;
+ $('you').textContent='You are '+side(s.role)+(s.difficulty?' · '+s.difficulty+' bot':'')+(can?' · your move':' · waiting');timer();$('pass').disabled=!can||s.shopOpen;
  $('money').innerHTML=[0,1].map(c=>'<div class="money"><span>'+side(c)+'<br><small class="muted">'+s.pieces.filter(p=>p.color===c).length+' pieces · '+s.handCount[c]+' cards</small></span><strong>$'+s.money[c]+'</strong></div>').join('');
- $('world').textContent=(s.cards?'Cards awakened. ':'Cards undiscovered. ')+(s.fog?'Fog in the middle two ranks.':'Expansion on round 20.');
+ $('world').textContent=(s.cards?'Cards awakened. ':'Cards undiscovered. ')+(s.fog?'Fog in the middle two ranks.':s.run?'Campaign battlefield · 8 × 8.':'Expansion on round 20.');
  const board=$('board');board.innerHTML='';board.style.setProperty('--n',s.size);board.className=(s.size===20?'large ':'')+(zoom?'zoom':'');
  const chosen=s.pieces.find(p=>p.id===selected),legal=chosen&&!armed?chosen.legal:[],frag=document.createDocumentFragment();
  for(let row=0;row<s.size;row++)for(let col=0;col<s.size;col++){const x=flipped?s.size-1-col:col,y=flipped?s.size-1-row:row,p=s.pieces.find(p=>p.x===x&&p.y===y),t=s.tiles.find(t=>t.x===x&&t.y===y),h=s.hazards.find(t=>t.x===x&&t.y===y),move=legal.some(m=>m[0]===x&&m[1]===y),b=button('',()=>squareClick(x,y));
@@ -778,7 +1055,8 @@ poll();setInterval(poll,700);
     public static void main(String[] argv)throws Exception{
         Set<String> flags=new HashSet<>(Arrays.asList(argv));
         if(flags.contains("--test")){selfTest();return;}
-        boolean host=flags.contains("--host"),serverOnly=flags.contains("--server");
+        boolean host=flags.contains("--host"),serverOnly=flags.contains("--server"),rogue=flags.contains("--roguelike");
+        Skill skill=rogue?Skill.NORMAL:null;
         String bind="127.0.0.1";int port=8080,seconds=0;long seed=System.nanoTime();
         for(int i=0;i<argv.length;i++){
             switch(argv[i]){
@@ -786,20 +1064,31 @@ poll();setInterval(poll,700);
                 case "--port"->{require(i+1<argv.length,"--port requires a number.");port=Integer.parseInt(argv[++i]);}
                 case "--seconds"->{require(i+1<argv.length,"--seconds requires a number.");seconds=Integer.parseInt(argv[++i]);}
                 case "--seed"->{require(i+1<argv.length,"--seed requires a number.");seed=Long.parseLong(argv[++i]);}
-                case "--host","--server"->{}
+                case "--bot"->{require(i+1<argv.length,"--bot requires easy, normal, hard or expert.");skill=Skill.parse(argv[++i]);}
+                case "--host","--server","--roguelike","--local"->{}
                 default->throw new IllegalArgumentException("Unknown option: "+argv[i]);
             }
         }
         require(port>=1&&port<=65535,"Port must be 1–65535.");require(seconds==0||seconds>=10&&seconds<=3600,"Timer must be 0 (off) or 10–3600 seconds.");
-        Session s=new Session(new Game(seed),host||serverOnly,seconds);
+        if(argv.length==0&&!GraphicsEnvironment.isHeadless()){
+            String[] modes={"Solo vs bot","The Shattered Crown (roguelike)","Local two-player"};
+            int choice=JOptionPane.showOptionDialog(null,"Choose how to play","Chess II",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,modes,modes[0]);
+            if(choice<0)return;
+            if(choice<2){
+                Object level=JOptionPane.showInputDialog(null,"Choose bot difficulty","Chess II",JOptionPane.PLAIN_MESSAGE,null,Skill.values(),Skill.NORMAL);
+                if(level==null)return;skill=(Skill)level;rogue=choice==1;
+            }
+        }
+        require(!rogue||skill!=null,"Roguelike mode needs a bot.");
+        Session s=new Session(new Game(seed),host||serverOnly,seconds,skill,rogue,seed);
         if(host||serverOnly){
             try{s.start(bind,port);}catch(IOException e){System.err.println("Could not host at "+bind+":"+port+". Check that the IP belongs to this PC and the port is unused.");throw e;}
             Runtime.getRuntime().addShutdownHook(new Thread(s::close));
             String address=bind.equals("0.0.0.0")?"YOUR_PC_IP":bind.contains(":")?"["+bind+"]":bind;
             System.out.println("Chess II is running. Keep this terminal open.");
             System.out.println("Ivory invite: http://"+address+":"+port+"/#"+s.tokens[0]);
-            System.out.println("Onyx invite:  http://"+address+":"+port+"/#"+s.tokens[1]);
-            System.out.println("Share only the Onyx invite with your friend. Invite links are private player keys.");
+            if(!s.solo())System.out.println("Onyx invite:  http://"+address+":"+port+"/#"+s.tokens[1]);
+            System.out.println(s.solo()?"Onyx is the "+s.skill.name().toLowerCase(Locale.ROOT)+" bot. Open the Ivory invite to play.":"Share only the Onyx invite with your friend. Invite links are private player keys.");
         }
         if(!serverOnly){
             if(GraphicsEnvironment.isHeadless()){s.close();throw new IllegalStateException("No desktop display. Use --server for browser mode.");}
@@ -807,3 +1096,5 @@ poll();setInterval(poll,700);
         }
     }
 }
+
+
