@@ -1,0 +1,223 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Godot: Import assets",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/tools/godot.ps1",
+        "Import"
+      ],
+      "presentation": {
+        "reveal": "silent"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Godot: Open editor",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/tools/godot.ps1",
+        "Editor"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Godot: Play Schedule 1 Chess prototype",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/tools/godot.ps1",
+        "Run"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Godot: Test interface",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/tools/godot.ps1",
+        "Test"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Godot: Export Windows EXE",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/tools/godot.ps1",
+        "Export"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Legacy Java: Dream Chess II: Play",
+      "type": "process",
+      "command": "java",
+      "args": [
+        "${workspaceFolder}/dreams/Chess2.java"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Legacy Java: Dream Chess II: Build",
+      "type": "process",
+      "command": "javac",
+      "args": [
+        "-encoding",
+        "UTF-8",
+        "-d",
+        "${workspaceFolder}/bin",
+        "${workspaceFolder}/dreams/Chess2.java",
+        "${workspaceFolder}/dreams/SoloTest.java",
+        "${workspaceFolder}/dreams/DesktopSmoke.java"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": [
+        "$javac"
+      ]
+    },
+    {
+      "label": "Legacy Java: Dream Chess II: Test rules and HTTP multiplayer",
+      "type": "process",
+      "command": "java",
+      "args": [
+        "-cp",
+        "${workspaceFolder}/bin",
+        "Chess2",
+        "--test"
+      ],
+      "dependsOn": "Legacy Java: Dream Chess II: Build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Legacy Java: Dream Chess II: Test solo and campaign",
+      "type": "process",
+      "command": "java",
+      "args": [
+        "-cp",
+        "${workspaceFolder}/bin",
+        "SoloTest"
+      ],
+      "dependsOn": "Legacy Java: Dream Chess II: Test rules and HTTP multiplayer",
+      "problemMatcher": []
+    },
+    {
+      "label": "Legacy Java: Dream Chess II: Verify Java and desktop",
+      "type": "process",
+      "command": "java",
+      "args": [
+        "-cp",
+        "${workspaceFolder}/bin",
+        "DesktopSmoke"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/dreams"
+      },
+      "dependsOn": "Legacy Java: Dream Chess II: Test solo and campaign",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "process",
+      "label": "Godot: Verify everything",
+      "group": {
+        "isDefault": true,
+        "kind": "test"
+      },
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/tools/godot.ps1",
+        "Verify"
+      ],
+      "problemMatcher": [],
+      "command": "powershell.exe"
+    },
+    {
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/tools/godot.ps1",
+        "Rules"
+      ],
+      "problemMatcher": [],
+      "command": "powershell.exe",
+      "type": "process",
+      "label": "Godot: Test rules"
+    },
+    {
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/tools/godot.ps1",
+        "NetworkTest"
+      ],
+      "problemMatcher": [],
+      "command": "powershell.exe",
+      "type": "process",
+      "label": "Godot: Test multiplayer"
+    },
+    {
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/tools/godot.ps1",
+        "TestExport"
+      ],
+      "problemMatcher": [],
+      "command": "powershell.exe",
+      "type": "process",
+      "label": "Godot: Test exported EXE"
+    }
+  ]
+}

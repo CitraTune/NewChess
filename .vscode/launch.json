@@ -1,0 +1,59 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "godot",
+      "name": "Schedule 1 Chess (Godot prototype)",
+      "request": "launch",
+      "project": "${workspaceFolder}/godot",
+      "scene": "main",
+      "address": "127.0.0.1",
+      "port": 6007,
+      "editor_path": "C:/Users/jtkea/AppData/Local/NewChess/tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe"
+    },
+    {
+      "type": "java",
+      "name": "Legacy Java: Dream Chess II \u2014 Play (mode menu)",
+      "request": "launch",
+      "mainClass": "Chess2",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "Legacy Java: Dream Chess II \u2014 Solo vs bot",
+      "request": "launch",
+      "mainClass": "Chess2",
+      "args": "--bot normal",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "Legacy Java: Dream Chess II \u2014 The Shattered Crown",
+      "request": "launch",
+      "mainClass": "Chess2",
+      "args": "--roguelike --bot normal",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "Legacy Java: Dream Chess II \u2014 Local two-player",
+      "request": "launch",
+      "mainClass": "Chess2",
+      "args": "--local",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "Legacy Java: Dream Chess II \u2014 Browser multiplayer (this PC)",
+      "request": "launch",
+      "mainClass": "Chess2",
+      "args": "--server",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    }
+  ]
+}

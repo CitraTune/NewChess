@@ -1,0 +1,14 @@
+KREFELD CONDENSED / RAILWAY 1901
+Selected from James Hanzimanolis's Typeface Revival collection at the user's request.
+
+Krefeld Condensed, Version 1.001
+Collection page: https://hypersalesman.com/folders/#font-71
+Font: https://hypersalesman.com/assets/font-collection/71-krefeld-condensed.otf
+
+Railway 1901, Version 1.007
+Collection page: https://hypersalesman.com/folders/#font-76
+Font: https://hypersalesman-font-assets.jameshanzimanolis.workers.dev/assets/font-collection/kerning-20261024/76-railway-1901.otf?v=1.007
+
+Retrieved 2026-10-30 for this personal project. The collection's original source
+metadata is retained in Hypersalesman-sources.json. No separate formal license
+document was supplied with these individual font downloads.

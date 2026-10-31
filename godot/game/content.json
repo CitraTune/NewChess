@@ -1,0 +1,1194 @@
+{
+  "cards": [
+    {
+      "id": "chacha",
+      "name": "Cha-Cha",
+      "target": [
+        "pawn"
+      ],
+      "description": "Move a pawn one square left. The destination must be empty.",
+      "flavor": "Everybody slide to the left.",
+      "cost": 0,
+      "group": "card",
+      "short": "Slide a pawn one square left."
+    },
+    {
+      "id": "grass",
+      "name": "Grass Knuckles",
+      "target": [
+        "tile"
+      ],
+      "description": "Place a trap. A piece still there after its next turn is destroyed.",
+      "flavor": "Touch grass. Carefully.",
+      "cost": 0,
+      "group": "card",
+      "short": "Place a trap. Staying there is fatal."
+    },
+    {
+      "id": "greed",
+      "name": "Pot of Greed",
+      "target": [
+        "none"
+      ],
+      "description": "Draw two cards. You may hold more than four until your turn ends; then choose discards to keep four.",
+      "flavor": "What does it do again?",
+      "cost": 0,
+      "group": "card",
+      "short": "Draw two cards."
+    },
+    {
+      "id": "frog",
+      "name": "Big Frog",
+      "target": [
+        "empty"
+      ],
+      "description": "Summon a frog on your pawn starting rank. It advances one or two squares.",
+      "flavor": "A distinguished gentleman.",
+      "cost": 0,
+      "group": "card",
+      "short": "Summon a frog on your pawn rank."
+    },
+    {
+      "id": "rat",
+      "name": "Rat Hat",
+      "target": [
+        "ally"
+      ],
+      "description": "Give a piece knight movement for this turn.",
+      "flavor": "A very small cavalry officer.",
+      "cost": 0,
+      "group": "card",
+      "short": "Give an ally knight movement this turn."
+    },
+    {
+      "id": "union",
+      "name": "Unionize!",
+      "target": [
+        "none"
+      ],
+      "description": "Your pawns can advance one extra square this turn.",
+      "flavor": "Collective bargaining. Individual violence.",
+      "cost": 0,
+      "group": "card",
+      "short": "Pawns advance one extra square this turn."
+    },
+    {
+      "id": "vest",
+      "name": "Homemade Vest",
+      "target": [
+        "ally"
+      ],
+      "description": "Block the next ranged attack before your next turn.",
+      "flavor": "Made with love. And scrap metal.",
+      "cost": 0,
+      "group": "card",
+      "short": "Block one ranged hit until your next turn."
+    },
+    {
+      "id": "collector",
+      "name": "Collector's Edition",
+      "target": [
+        "none"
+      ],
+      "description": "Gain $10 for every own turn this card has waited in your hand.",
+      "flavor": "Mint condition.",
+      "cost": 0,
+      "group": "card",
+      "short": "Gain $10 per own turn held."
+    },
+    {
+      "id": "traffic",
+      "name": "LA Traffic",
+      "target": [
+        "none"
+      ],
+      "description": "End your turn immediately.",
+      "flavor": "You are not going anywhere.",
+      "cost": 0,
+      "group": "card",
+      "short": "End your turn."
+    },
+    {
+      "id": "gale",
+      "name": "Gale Forces",
+      "target": [
+        "tile"
+      ],
+      "description": "Push every piece in this file one square toward its own back rank, if open.",
+      "flavor": "Please mind the gap.",
+      "cost": 0,
+      "group": "card",
+      "short": "Push this file toward each piece's home."
+    },
+    {
+      "id": "blackhole",
+      "name": "Black Hole",
+      "target": [
+        "tile"
+      ],
+      "description": "Freeze all pieces in a 3x3 area through their next turn. Friendly fire.",
+      "flavor": "Personal space is cancelled.",
+      "cost": 0,
+      "group": "card",
+      "short": "Freeze a 3 x 3 area. Friendly fire."
+    },
+    {
+      "id": "warp",
+      "name": "Time Warp",
+      "target": [
+        "ally"
+      ],
+      "description": "Return a piece to its starting square, if empty.",
+      "flavor": "We have been here before.",
+      "cost": 0,
+      "group": "card",
+      "short": "Return an ally to its starting square."
+    },
+    {
+      "id": "lasso",
+      "name": "Lasso",
+      "target": [
+        "enemy",
+        "enemy"
+      ],
+      "description": "Bind two opposing pieces within four squares of each other. Neither can move more than four squares away from the other.",
+      "flavor": "An extremely awkward friendship.",
+      "cost": 0,
+      "group": "card",
+      "short": "Tether two enemies within four squares."
+    },
+    {
+      "id": "skyhook",
+      "name": "Skyhook",
+      "target": [
+        "ally"
+      ],
+      "description": "Extract a piece. After two rounds it returns on your pawn rank.",
+      "flavor": "Your ride is here.",
+      "cost": 0,
+      "group": "card",
+      "short": "Extract an ally. Return in two rounds."
+    },
+    {
+      "id": "scissors",
+      "name": "Scissors",
+      "target": [
+        "none"
+      ],
+      "description": "Discard the opponent's oldest card.",
+      "flavor": "Paper had it coming.",
+      "cost": 0,
+      "group": "card",
+      "short": "Discard the enemy's oldest card."
+    },
+    {
+      "id": "dnd",
+      "name": "Do Not Disturb",
+      "target": [
+        "none"
+      ],
+      "description": "Disable opposing items through their next turn.",
+      "flavor": "Please leave the apocalypse outside.",
+      "cost": 0,
+      "group": "card",
+      "short": "Disable enemy items for one turn."
+    },
+    {
+      "id": "blanket",
+      "name": "Blanket",
+      "target": [
+        "ally"
+      ],
+      "description": "Hide the identity of your piece from your opponent until your next turn.",
+      "flavor": "Probably just a pawn.",
+      "cost": 0,
+      "group": "card",
+      "short": "Hide an ally until your next turn."
+    },
+    {
+      "id": "ticket",
+      "name": "Train Ticket",
+      "target": [
+        "ally"
+      ],
+      "description": "Move a piece five squares forward into an empty square. Ends your turn.",
+      "flavor": "One way. First class.",
+      "cost": 0,
+      "group": "card",
+      "short": "Move five squares forward. Ends turn."
+    },
+    {
+      "id": "scavenge",
+      "name": "Scavenge",
+      "target": [
+        "none"
+      ],
+      "description": "Your piece farthest toward the enemy gets a parcel (a glow marks it). Move that same piece onto either of your two home ranks within five rounds to earn $100.",
+      "flavor": "Expenses reimbursed on return.",
+      "cost": 0,
+      "group": "card",
+      "short": "Deliver your marked piece home for $100."
+    },
+    {
+      "id": "radio",
+      "name": "Radio Interference",
+      "target": [
+        "enemy"
+      ],
+      "description": "Freeze an enemy through its next turn.",
+      "flavor": "Can you hear me now?",
+      "cost": 0,
+      "group": "card",
+      "short": "Freeze an enemy for one turn."
+    },
+    {
+      "id": "eject",
+      "name": "Ejector Seat",
+      "target": [
+        "ally"
+      ],
+      "description": "Move a piece two squares backward into an empty square.",
+      "flavor": "A tactical change of scenery.",
+      "cost": 0,
+      "group": "card",
+      "short": "Move an ally two squares backward."
+    }
+  ],
+  "items": [
+    {
+      "id": "shield",
+      "name": "Shield",
+      "target": [
+        "ally"
+      ],
+      "cost": 100,
+      "description": "Absorb one direct capture. The attack still spends the enemy turn.",
+      "flavor": "One very firm no.",
+      "group": "tile",
+      "tile_only": true
+    },
+    {
+      "id": "magic",
+      "name": "Magic Shield",
+      "target": [
+        "ally"
+      ],
+      "cost": 100,
+      "description": "Absorb one spell or ranged hit. Direct captures still work.",
+      "flavor": "Not rated for horse impact.",
+      "group": "tile",
+      "tile_only": true
+    },
+    {
+      "id": "treasure",
+      "name": "Victoria's Secret",
+      "target": [
+        "none"
+      ],
+      "cost": 0,
+      "description": "Receive a treasure map. Approach the buried square to reveal its X.",
+      "flavor": "There is something in the drawer.",
+      "group": "tile",
+      "tile_only": true
+    },
+    {
+      "id": "castling",
+      "name": "Castling",
+      "target": [
+        "ally",
+        "any"
+      ],
+      "cost": 0,
+      "description": "Swap a friendly piece with any other piece. Ends your turn.",
+      "flavor": "A change in management.",
+      "group": "tile",
+      "tile_only": true
+    },
+    {
+      "id": "spider",
+      "name": "Spider Sac",
+      "target": [
+        "queen"
+      ],
+      "cost": 170,
+      "description": "On death, your queen releases two pawns that cannot promote.",
+      "flavor": "Family business.",
+      "group": "tile",
+      "tile_only": true
+    },
+    {
+      "id": "lego",
+      "name": "Lego Block",
+      "target": [
+        "ally",
+        "ally"
+      ],
+      "cost": 0,
+      "description": "Stack two unmoved allies. The survivor inherits both movement patterns.",
+      "flavor": "Some assembly required.",
+      "group": "tile",
+      "tile_only": true
+    },
+    {
+      "id": "trojan",
+      "name": "Trojan Horse",
+      "target": [
+        "enemy"
+      ],
+      "cost": 0,
+      "description": "Replace an enemy pawn, bishop or rook with an enemy knight.",
+      "flavor": "Absolutely nothing suspicious.",
+      "group": "tile",
+      "tile_only": true
+    },
+    {
+      "id": "boots",
+      "name": "Flame Boots",
+      "target": [
+        "ally"
+      ],
+      "cost": 180,
+      "description": "Moving leaves a one-round trail of fire. Any piece landing there burns.",
+      "flavor": "Excessive snow boots.",
+      "group": "passive"
+    },
+    {
+      "id": "ufo",
+      "name": "UFO",
+      "target": [
+        "none"
+      ],
+      "cost": 170,
+      "description": "A random piece is abducted and replaced by up to four allied pawns.",
+      "flavor": "We need to study you.",
+      "group": "manual"
+    },
+    {
+      "id": "gas",
+      "name": "Gas Bomb",
+      "target": [
+        "tile"
+      ],
+      "cost": 160,
+      "description": "Cover a 3x3 empty-of-enemies area in gas for three rounds. Enemies die on entry.",
+      "flavor": "The Geneva Convention does not apply to chess.",
+      "group": "manual"
+    },
+    {
+      "id": "bleach",
+      "name": "Bleach",
+      "target": [
+        "tile"
+      ],
+      "cost": 40,
+      "description": "Remove a mystery, hazard or special tile.",
+      "flavor": "Fry your hair.",
+      "group": "manual"
+    },
+    {
+      "id": "contractor",
+      "name": "Contractor",
+      "target": [
+        "soldier"
+      ],
+      "cost": 110,
+      "description": "Temporarily grant a random upgrade path through this turn.",
+      "flavor": "You only get what you paid for.",
+      "group": "manual"
+    },
+    {
+      "id": "speed",
+      "name": "Heart of Speed",
+      "target": [
+        "ally"
+      ],
+      "cost": 160,
+      "description": "Move the selected piece repeatedly this turn, without capturing. End when ready.",
+      "flavor": "A questionable supplement.",
+      "group": "manual"
+    },
+    {
+      "id": "doom",
+      "name": "Doomed Fate",
+      "target": [
+        "enemy"
+      ],
+      "cost": 190,
+      "description": "Mark a non-royal enemy for death in five rounds.",
+      "flavor": "Mate in twelve.",
+      "group": "mystic"
+    },
+    {
+      "id": "wrath",
+      "name": "Spirit of Wrath",
+      "target": [
+        "ally"
+      ],
+      "cost": 190,
+      "description": "This piece may make two consecutive captures in one turn.",
+      "flavor": "Exactly what I wanted.",
+      "group": "manual"
+    },
+    {
+      "id": "chaos",
+      "name": "Bottled Chaos",
+      "target": [
+        "none"
+      ],
+      "cost": 70,
+      "description": "Transform into another one-use item at each turn start.",
+      "flavor": "On sale for a reason.",
+      "group": "manual"
+    },
+    {
+      "id": "glass",
+      "name": "Glass Armor",
+      "target": [
+        "ally"
+      ],
+      "cost": 130,
+      "description": "Make a piece invulnerable until your next turn.",
+      "flavor": "An unconventional choice of material.",
+      "group": "manual"
+    },
+    {
+      "id": "lager",
+      "name": "Thor's Lager",
+      "target": [
+        "tile"
+      ],
+      "cost": 210,
+      "description": "Lightning hits an occupied square in the chosen plus-shaped area. Friendly fire.",
+      "flavor": "Drink responsibly.",
+      "group": "mystic"
+    },
+    {
+      "id": "pacify",
+      "name": "Pacify",
+      "target": [
+        "enemy"
+      ],
+      "cost": 120,
+      "description": "For one round an enemy can move but cannot capture.",
+      "flavor": "Let us all calm down.",
+      "group": "mystic"
+    },
+    {
+      "id": "rabid",
+      "name": "Rabid Bite",
+      "target": [
+        "enemy"
+      ],
+      "cost": 120,
+      "description": "For one round an enemy may move only if it captures.",
+      "flavor": "Anger management.",
+      "group": "mystic"
+    },
+    {
+      "id": "conch",
+      "name": "Giant Horse Conch",
+      "target": [
+        "knight"
+      ],
+      "cost": 230,
+      "description": "A knight also tramples enemies along its L-shaped path.",
+      "flavor": "What did you think it said?",
+      "group": "passive"
+    },
+    {
+      "id": "rein",
+      "name": "Rein Carnation",
+      "target": [
+        "ally"
+      ],
+      "cost": 220,
+      "description": "On death, reincarnate as a pawn, knight or rook based on shop spending.",
+      "flavor": "A fresh arrangement.",
+      "group": "passive"
+    },
+    {
+      "id": "wendigo",
+      "name": "Wendigo Skull",
+      "target": [
+        "none"
+      ],
+      "cost": 260,
+      "description": "Your next capture converts its victim and sacrifices the attacker.",
+      "flavor": "Questionable ethics.",
+      "group": "mystic"
+    },
+    {
+      "id": "agent",
+      "name": "Double Agent",
+      "target": [
+        "none"
+      ],
+      "cost": 140,
+      "description": "Enable friendly captures this turn. Reusable after five rounds.",
+      "flavor": "A red spy is in the base?",
+      "group": "manual",
+      "reusable": 5
+    },
+    {
+      "id": "tidal",
+      "name": "Tidal Shift",
+      "target": [
+        "none"
+      ],
+      "cost": 180,
+      "description": "Swap each surviving pawn with the unit that started behind its file.",
+      "flavor": "Adult swim.",
+      "group": "manual"
+    },
+    {
+      "id": "missile",
+      "name": "Heatseeker Missile",
+      "target": [
+        "enemy"
+      ],
+      "cost": 350,
+      "description": "Hit a non-pawn enemy within five squares of your queen.",
+      "flavor": "Raytheon loves you.",
+      "group": "manual"
+    },
+    {
+      "id": "flare",
+      "name": "War Flare",
+      "target": [
+        "tile"
+      ],
+      "cost": 380,
+      "description": "Mark a radius-two area. Artillery hits after the opponent has had a turn.",
+      "flavor": "Please vacate the premises.",
+      "group": "manual"
+    },
+    {
+      "id": "portals",
+      "name": "Scroll of Distortion",
+      "target": [
+        "empty",
+        "empty"
+      ],
+      "cost": 240,
+      "description": "Create two linked portals. Enter either to emerge at the other if empty.",
+      "flavor": "Quantum something.",
+      "group": "mystic"
+    },
+    {
+      "id": "sanctuary",
+      "name": "No Killing Sign",
+      "target": [
+        "tile"
+      ],
+      "cost": 170,
+      "description": "Protect a square from deaths. Kings remain vulnerable.",
+      "flavor": "Terms and conditions apply.",
+      "group": "mystic"
+    },
+    {
+      "id": "hilux",
+      "name": "Toyota Hilux",
+      "target": [
+        "pawn"
+      ],
+      "cost": 280,
+      "description": "Give a pawn queen movement up to five squares. It can still use guns.",
+      "flavor": "Insurrection truck.",
+      "group": "passive"
+    },
+    {
+      "id": "kragle",
+      "name": "Kragle",
+      "target": [
+        "ally"
+      ],
+      "cost": 130,
+      "description": "Glue a piece in place permanently. It cannot move or die.",
+      "flavor": "Some assembly irreversible.",
+      "group": "mystic"
+    },
+    {
+      "id": "retreat",
+      "name": "Retreat Flag",
+      "target": [
+        "ally"
+      ],
+      "cost": 80,
+      "description": "Move a piece to its closest empty edge square. Ends your turn.",
+      "flavor": "A strategic disagreement.",
+      "group": "manual"
+    },
+    {
+      "id": "jet",
+      "name": "FA-18",
+      "target": [
+        "tile"
+      ],
+      "cost": 420,
+      "description": "Pay $100 to mark a row for an airstrike after one enemy turn. Eight-round cooldown.",
+      "flavor": "Highway to the danger zone.",
+      "group": "manual",
+      "reusable": 8
+    },
+    {
+      "id": "helicopter",
+      "name": "Helicopter",
+      "target": [
+        "tile"
+      ],
+      "cost": 320,
+      "description": "Pay $70 for a delayed 3x3 airstrike. Eight-round cooldown.",
+      "flavor": "Fortunate son.",
+      "group": "manual",
+      "reusable": 8
+    },
+    {
+      "id": "counterspawn",
+      "name": "Counterspawn",
+      "target": [
+        "none"
+      ],
+      "cost": 150,
+      "description": "Destroy enemy units summoned during the last round. Cannot use on purchase turn.",
+      "flavor": "Back to life. Briefly.",
+      "group": "manual"
+    },
+    {
+      "id": "counterspell",
+      "name": "Counterspell",
+      "target": [
+        "none"
+      ],
+      "cost": 150,
+      "description": "Cancel all pending delayed attacks and enemy timed effects.",
+      "flavor": "Interception.",
+      "group": "mystic"
+    },
+    {
+      "id": "automaton",
+      "name": "C4 Automaton",
+      "target": [
+        "empty"
+      ],
+      "cost": 200,
+      "description": "Deploy a non-attacking automaton on your back rank. It explodes on death or by ability.",
+      "flavor": "Not originally meant to blow up.",
+      "group": "manual"
+    },
+    {
+      "id": "goat",
+      "name": "Rocket Goat",
+      "target": [
+        "empty"
+      ],
+      "cost": 300,
+      "description": "Deploy a goat on your back rank: two-square movement, three-square rocket attack.",
+      "flavor": "An unfortunate combination of infantry and tanks.",
+      "group": "manual"
+    },
+    {
+      "id": "lotto",
+      "name": "Lotto Ticket",
+      "target": [
+        "none"
+      ],
+      "cost": 50,
+      "description": "A gamble: 50% $60, 20% $25, 20% nothing, 5% $150, 5% $300.",
+      "flavor": "Just one more.",
+      "group": "manual"
+    },
+    {
+      "id": "cia",
+      "name": "CIA Agent",
+      "target": [
+        "ally"
+      ],
+      "cost": 0,
+      "description": "Sacrifice one friendly soldier and gain its capture value.",
+      "flavor": "An unfortunate accounting error.",
+      "group": "manual"
+    },
+    {
+      "id": "sapling",
+      "name": "Sapling",
+      "target": [
+        "empty"
+      ],
+      "cost": 150,
+      "description": "Plant a tree. In five rounds it matures and earns $15 each own turn.",
+      "flavor": "Money does not grow on...",
+      "group": "passive"
+    },
+    {
+      "id": "celestial",
+      "name": "Celestial Sapling",
+      "target": [
+        "empty"
+      ],
+      "cost": 280,
+      "description": "Matures after five rounds. Grants a mystical item every five own turns.",
+      "flavor": "The blue glow is actually hidden LEDs.",
+      "group": "mystic"
+    },
+    {
+      "id": "robotic",
+      "name": "Robotic Sapling",
+      "target": [
+        "empty"
+      ],
+      "cost": 280,
+      "description": "Matures after five rounds. Grants a mechanical item every five own turns.",
+      "flavor": "We do not know how it gets bigger.",
+      "group": "passive"
+    },
+    {
+      "id": "mothership",
+      "name": "Mothership Distress Beacon",
+      "target": [
+        "empty"
+      ],
+      "cost": 650,
+      "description": "Deploy a four-square flying dropship. Its ability releases an octopus each turn.",
+      "flavor": "The cavalry has tentacles.",
+      "group": "manual"
+    },
+    {
+      "id": "arm",
+      "name": "Robotic Arm",
+      "target": [
+        "none"
+      ],
+      "cost": 160,
+      "description": "Draw two cards instead of one when you claim a marked card tile. Still discard down to four at turn end.",
+      "flavor": "Is this all we could use it for?",
+      "group": "passive"
+    },
+    {
+      "id": "insurance",
+      "name": "Insurance Contract",
+      "target": [
+        "none"
+      ],
+      "cost": 180,
+      "description": "Receive $40 whenever one of your pieces dies.",
+      "flavor": "Investing in put options.",
+      "group": "passive"
+    },
+    {
+      "id": "decoy",
+      "name": "Obvious Decoy",
+      "target": [
+        "empty"
+      ],
+      "cost": 180,
+      "description": "Deploy a rook-like decoy. On death it releases a knight.",
+      "flavor": "Surely someone could be fooled.",
+      "group": "manual"
+    },
+    {
+      "id": "grave",
+      "name": "Grave Robber",
+      "target": [
+        "none"
+      ],
+      "cost": 90,
+      "description": "Gain $30 for every piece that has died in this battle.",
+      "flavor": "The dead do not need it. Right?",
+      "group": "manual"
+    },
+    {
+      "id": "heist",
+      "name": "The Great Heist",
+      "target": [
+        "none"
+      ],
+      "cost": 100,
+      "description": "A 50% chance to steal up to $200, or two items if the enemy has no money.",
+      "flavor": "Bellbottoms!",
+      "group": "manual"
+    },
+    {
+      "id": "dolphin",
+      "name": "Bottled Space Dolphin Spirit",
+      "target": [
+        "ally"
+      ],
+      "cost": 260,
+      "description": "Move or capture with a piece three times this turn.",
+      "flavor": "Did you bring an infinite bag?",
+      "group": "mystic"
+    },
+    {
+      "id": "royalguard",
+      "name": "Counter-Counter-Offensive Sabotage",
+      "target": [
+        "royal"
+      ],
+      "cost": 250,
+      "description": "Your king or queen cannot die for three rounds.",
+      "flavor": "Includes counter-counter-counter measures.",
+      "group": "manual"
+    },
+    {
+      "id": "wizard",
+      "name": "Wizard",
+      "target": [
+        "none"
+      ],
+      "cost": 200,
+      "description": "Mystical offers cost 25% less. Unlock the Chessnut Room.",
+      "flavor": "Why do you barter with money?",
+      "group": "passive"
+    },
+    {
+      "id": "egg",
+      "name": "Egg",
+      "target": [
+        "any_tile"
+      ],
+      "cost": 70,
+      "description": "Throw at an enemy to stun it, or place on an empty square to hatch a baby goose.",
+      "flavor": "Honk!",
+      "group": "manual"
+    },
+    {
+      "id": "wasps",
+      "name": "Horde of Wasps",
+      "target": [
+        "tile"
+      ],
+      "cost": 170,
+      "description": "Sweep a file with wasps, destroying every pawn in it.",
+      "flavor": "Not the bees.",
+      "group": "mystic"
+    },
+    {
+      "id": "pack",
+      "name": "Card Pack",
+      "target": [
+        "none"
+      ],
+      "cost": 100,
+      "description": "Draw five cards. Keep them during your turn, then choose discards down to four at turn end.",
+      "flavor": "Gambling for kids.",
+      "group": "manual"
+    },
+    {
+      "id": "membership",
+      "name": "Gun Costco Membership",
+      "target": [
+        "none"
+      ],
+      "cost": 120,
+      "description": "Unlock the Gun Costco department. Guns equip pawns.",
+      "flavor": "Live and die by the second amendment.",
+      "group": "passive"
+    },
+    {
+      "id": "spore",
+      "name": "Curse of Spore",
+      "target": [
+        "ally"
+      ],
+      "cost": 170,
+      "description": "On death, leave destructible fungus on nearby empty squares.",
+      "flavor": "At least the ending was colorful.",
+      "group": "mystic"
+    },
+    {
+      "id": "shipping",
+      "name": "AliExpress Shipping",
+      "target": [
+        "none"
+      ],
+      "cost": 75,
+      "description": "Two knights arrive on your back rank after eight rounds.",
+      "flavor": "A patent or two may be breached.",
+      "group": "manual"
+    },
+    {
+      "id": "service",
+      "name": "Secret Service",
+      "target": [
+        "royal"
+      ],
+      "cost": 220,
+      "description": "Non-royal enemies cannot move next to this king or queen.",
+      "flavor": "Get down, Mr. President!",
+      "group": "passive"
+    },
+    {
+      "id": "bulldoze",
+      "name": "Bulldoze",
+      "target": [
+        "rook"
+      ],
+      "cost": 230,
+      "description": "Your rook may smash through one enemy and keep moving along its ray.",
+      "flavor": "A minor traffic violation.",
+      "group": "passive"
+    },
+    {
+      "id": "sabotage",
+      "name": "Logistics Sabotage",
+      "target": [
+        "none"
+      ],
+      "cost": 130,
+      "description": "The enemy cannot use items during its next turn.",
+      "flavor": "Where is your airstrike now?",
+      "group": "manual"
+    },
+    {
+      "id": "popup",
+      "name": "Pop-Up Pawn",
+      "target": [
+        "ally"
+      ],
+      "cost": 90,
+      "description": "After this piece next moves, a new pawn appears in front if space allows.",
+      "flavor": "Surprise reinforcements.",
+      "group": "manual"
+    },
+    {
+      "id": "pawn",
+      "name": "Pawn Cannon",
+      "target": [
+        "empty"
+      ],
+      "cost": 100,
+      "description": "Launch a pawn into your own half. It cannot attack until your next turn.",
+      "flavor": "Express delivery.",
+      "group": "manual"
+    },
+    {
+      "id": "halo",
+      "name": "HALO Drop Commando",
+      "target": [
+        "empty"
+      ],
+      "cost": 240,
+      "description": "Deploy a protected commando outside the enemy back three ranks.",
+      "flavor": "Feet first into trouble.",
+      "group": "manual"
+    },
+    {
+      "id": "throwingknife",
+      "name": "Throwing Knife",
+      "target": [
+        "pawn"
+      ],
+      "cost": 100,
+      "description": "On death, kill the attacker as well.",
+      "flavor": "The last laugh.",
+      "group": "passive"
+    },
+    {
+      "id": "assassinknife",
+      "name": "Assassin Knife",
+      "target": [
+        "pawn"
+      ],
+      "cost": 120,
+      "description": "After a capture, take one extra step forward if empty.",
+      "flavor": "Keep walking.",
+      "group": "passive"
+    },
+    {
+      "id": "amendment",
+      "name": "Second Amendment",
+      "target": [
+        "none"
+      ],
+      "cost": 350,
+      "description": "Give every friendly pawn a random gun.",
+      "flavor": "A well-regulated chessboard.",
+      "group": "manual"
+    },
+    {
+      "id": "combatboots",
+      "name": "Combat Boots",
+      "target": [
+        "pawn"
+      ],
+      "cost": 110,
+      "description": "Increase pawn advance range by one.",
+      "flavor": "These boots were made for marching.",
+      "group": "gun"
+    },
+    {
+      "id": "barrett",
+      "name": "Barrett",
+      "target": [
+        "pawn"
+      ],
+      "cost": 200,
+      "description": "Shoot enemies exactly two squares away. One-square movement.",
+      "flavor": "Long-distance correspondence.",
+      "group": "gun"
+    },
+    {
+      "id": "lewis",
+      "name": "Lewis Gun",
+      "target": [
+        "pawn"
+      ],
+      "cost": 190,
+      "description": "Shoot adjacent enemies twice per turn.",
+      "flavor": "A second opinion.",
+      "group": "gun"
+    },
+    {
+      "id": "grenade",
+      "name": "Slingshot and Grenade",
+      "target": [
+        "pawn"
+      ],
+      "cost": 140,
+      "description": "Shoot an adjacent enemy without moving.",
+      "flavor": "Simple engineering.",
+      "group": "gun"
+    },
+    {
+      "id": "glock",
+      "name": "Glock 17",
+      "target": [
+        "pawn"
+      ],
+      "cost": 150,
+      "description": "Two-square movement and an adjacent ranged attack.",
+      "flavor": "Pocket diplomacy.",
+      "group": "gun"
+    },
+    {
+      "id": "m4",
+      "name": "M4",
+      "target": [
+        "pawn"
+      ],
+      "cost": 220,
+      "description": "Two-square movement and a ranged attack within two surrounding squares.",
+      "flavor": "A persuasive argument.",
+      "group": "gun"
+    },
+    {
+      "id": "potgold",
+      "name": "Pot of Gold",
+      "target": [
+        "none"
+      ],
+      "cost": 50,
+      "description": "Claim $300. Appears after meeting the Leprechaun.",
+      "flavor": "Excellent financial advice.",
+      "group": "special"
+    }
+  ],
+  "pieces": {
+    "pawn": {
+      "name": "Pawn",
+      "value": 50
+    },
+    "knight": {
+      "name": "Knight",
+      "value": 150
+    },
+    "bishop": {
+      "name": "Bishop",
+      "value": 150
+    },
+    "rook": {
+      "name": "Rook",
+      "value": 250
+    },
+    "queen": {
+      "name": "Queen",
+      "value": 450
+    },
+    "king": {
+      "name": "King",
+      "value": 500
+    },
+    "frog": {
+      "name": "Big Frog",
+      "value": 50
+    },
+    "goose": {
+      "name": "Baby Goose",
+      "value": 50
+    },
+    "canadian": {
+      "name": "Canadian Goose",
+      "value": 250
+    },
+    "automaton": {
+      "name": "C4 Automaton",
+      "value": 100
+    },
+    "goat": {
+      "name": "Rocket Goat",
+      "value": 200
+    },
+    "dropship": {
+      "name": "Mothership",
+      "value": 450
+    },
+    "octopus": {
+      "name": "Space Octopus",
+      "value": 50
+    },
+    "decoy": {
+      "name": "Obvious Decoy",
+      "value": 100
+    },
+    "commando": {
+      "name": "HALO Commando",
+      "value": 150
+    },
+    "fungus": {
+      "name": "Fungus",
+      "value": 0
+    },
+    "tree": {
+      "name": "Money Tree",
+      "value": 100
+    }
+  },
+  "upgrades": {
+    "knight": [
+      "Dragon",
+      "Unicorn"
+    ],
+    "rook": [
+      "M1 Abrams",
+      "Golem"
+    ],
+    "bishop": [
+      "Necromancer",
+      "Divine Cleric"
+    ]
+  },
+  "fusions": {
+    "knight": "Sky Strider",
+    "rook": "Iron Warden",
+    "bishop": "Archmage"
+  },
+  "tile_events": [
+    "shield",
+    "magic",
+    "treasure",
+    "castling",
+    "spider",
+    "lego",
+    "trojan",
+    "leprechaun",
+    "election",
+    "freeze",
+    "hypnosis",
+    "bees",
+    "morph",
+    "companion",
+    "fog",
+    "harvest",
+    "love"
+  ]
+}

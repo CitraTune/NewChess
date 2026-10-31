@@ -1,0 +1,311 @@
+Source: https://docs.google.com/document/d/1GDvx3URa9pSkLYy1ozMG2TiZqrG-7ws89sX3C_67x8s
+Title: chess2
+Revision: AHj4eMQ99i_x1fqkR4N0oLzpTOCS6l7lgSvleZ4ZmBpT0kcSsGhoq6oejfDQnSs50KJsgfUiNHpxZxYEcBfSqZk
+
+Chess 2 brainstorming
+
+General rules
+
+Turn timer exists
+
+Adjacent means directly next to
+
+Surrounding means directly next to and diagonally directly next to
+
+Kings can die. The opponent gets a hefty cash reward ($500) The game doesn't end tho.
+
+-Item obtain not from shop gives a shine effect in middle of screen
+
+-Hover over item at top to read more into tooltip
+
+-All items are pixel art
+
+-Text is a royal one, pixelated. Try AI for the items.
+
+-Money related
+
+-Tile related
+
+Positive
+
+-Victoria’s Secret: You gain a treasure map. The x will be highlighted when you are adjacent to the treasure. [Hidden- Reward is $100 and a 1 time item, random] (item is a treasure map with panties)
+
+-Shield. 1 Time shield, won't die when attacked. (Opponent won't move if they choose to attack this piece. It will use their turn.)
+
+-Magic Shield. Still vulnerable to regular attacks, but one time spells and targeted attacks that don't directly hit this piece don’t kill it. 
+
+-Castling: Swap this piece with any piece on the board.
+
+-Spider sac: Given to your queen: On death, she spawns 2 pawns. These pawns can't be promoted.
+
+-Lego Block: Stack this piece on another piece that hasn’t moved- They now share movement [bishops/rook/pawn/king doesn't add anything to queen]
+
+-Trojan Horse: Destroy an enemy bishop, pawn, or rook of your choice. The enemy gains a knight where that piece died. 
+
+-Leprechaun: Pot of gold can appear in the shop from now on. Pot of gold: $50: Gain $300, or pick any item currently in the shop, and get it for free. 
+
+-Expansion: Guaranteed by turn 20. Expands the board in the middle, in the back, and on the sides. Becomes a 20x20 board.
+
+Negative
+
+-Election rigging: Summon enemy pawns to surround this piece.(4)
+
+-Break a leg: play silly crunch sfx and the piece that activated this tile cant move for 3 turns.
+
+-Hypnotism: This piece is now an opponent’s piece. However, you gain the value of the piece in dollars.
+
+-Bee Nest: You must move this piece next turn. Nest stays. When a piece lands on the nest, it releases wasps that kill all pawns in a 3 tile radius.
+
+Neutral
+
+-Transmogrify: Piece becomes a random different one. Rank doesn’t stray too far off original. (queen can only become rook)
+
+-Pokeball: A pikachu now sits on the side of the screen
+
+-Curse of the Fog: In the middle of the map there is now a bog, 2 tiles wide. If a piece spends more than 1 turn in the fog, that piece is destroyed. 
+
+-Bountiful Harvest: Place 8-10 bananas on random tiles all over the screen. When landed on, that player gains $10. 
+
+-House’s Curse: Two random pieces (of equal value) on opposite sides are bound by love. If either dies, the other dies as well.
+
+-Shop unlocked
+
+-Card Game: Every turn, each player draws a card. Draw a card now. Max hand size of 3, discard the oldest one upon drawing a new one and having a full hand. [Cards are weak items. We will have 20-30 unique cards. Must play cards before moving]
+
+Could make cards only draw when kill
+
+Cards:
+
+-Cha-Cha: Move a pawn one tile left
+
+-Grass Knuckles: Create a 1 tile trap that kills a piece that stays on this tile. Lasts 1 turn.
+
+-Pot of Greed: Draw 2 cards
+
+-Big Frog: Create a frog anywhere on your pawn lane. Can move 1 or 2 tiles forward per turn. Can be promoted.-Rat Hat: A piece can move like a knight for one turn.-Unionize!: Pawns gain 1 more movement range for a turn. 
+
+-Homemade Vest: Give a piece immunity to 1 gun attack for a turn-Collector’s Edition: Gain $10 times the amount of turns this has been in your hand. 
+
+-LA Traffic: Skip a turn
+
+-Gale Forces: Move all pieces in a lane back by one. 
+
+-Black Hole: All pieces in a 1.5 radius can’t move for a turn (friendly fire)
+
+-Time Warp: Send a piece back to where it started if that tiles is open
+
+-Lasso: Tie a piece to a nearby opponent’s piece. Neither can move more than 4 tiles away from each other. 
+
+-Skyhook: Remove one of your pieces. After 2 turns, place it back on lane 2.
+
+-Scissors: Destroy an opponent’s card. 
+
+-Do Not Disturb: Disable items for opponents for 1 turn.
+
+-Blanket: Cover a piece in a blanket for a turn. Does nothing, but if your opponent forgot what piece it was, oopsie.-Train Ticket: Move a piece 5 tiles forward. Uses turn. 
+
+-Scavenge: Your furthest forward piece finds money. Move it back to one of your starting lanes within 5 turns to gain $100. 
+
+-Radio Interference: Pick an enemy piece- it can't move for a turn. 
+
+-Ejector seat: Move a piece backwards by 2 tiles.
+
+-Shop/item related
+
+Shop Stuff
+
+-Shop opens after a tile activates it. This tile is guaranteed in the first 4 tiles. 
+
+-Refresh in shop for cheap price at any area in shop.
+
+-Shop doesn't have unlimited access. Spend your money while you can. 
+
+-Access shop at any time. But, be wise, as it will use your turn if you visit the shop. 
+
+-Every 5 turns, there will be a shop turn. No penalty for not buying anything. 
+
+-You can't battle anything in the shop
+
+-Can only move with your piece like it can normally move
+
+-Uses a turn if you buy something, and you leave immediately when you do
+
+-Walls that can't be destroyed by regular means prevent pieces from going past
+
+-Shop is split into 2 areas. Manual activation, and the more permanent passive items. Shop will NOT include items that automatically trigger activation. It is passive items and manual activation items, no automatic activation. Those are special, and limited to tiles.
+
+-Shop items will not be debuffs. Play offensively and reactively, not with control. 
+
+Items(shop or other obtaining method)
+
+-Flame Boots: The last tile this unit was on is left on fire for 1 turn. If another unit ends their turn there, that piece dies. [Excessive snow boots.]
+
+-UFO: Random piece is chosen: Destroys piece, creates 4 pawns (of the team that lost the piece) surrounding that location. [We need to study you.]
+
+-Gas Bomb: Cover a 3x3 area with gas. Can’t deploy if an enemy piece is in the area. Enemy pieces will die if they try to end their turn in the gas. Lasts for 3 turns. [The geneva convention does not apply to chess]
+
+-Bleach: Remove a special tile from the board. [Fry your hair.]
+
+-Contractor: Give a soldier unit the movement of an upgrade for a turn. [You only get what you paid for.]
+
+-Heart of Speed: One turn- A piece can move as many times as it wants as long as it doesn't kill any pieces. [(drugs)]
+
+-Doomed Fate: Choose a piece: Destroy it in 5 turns. Can’t target royalty. [Mate in 12.]
+
+-Spirit of Wrath: Allows a piece to move twice as long as both moves kill a piece. [Me when I don’t get exactly what I want exactly when I want it!]
+
+-Discounted item, Bottled Chaos: Use it while you can. (Every turn it becomes a new one time item. It tells you what it does that turn. Shows discount in shop with small flashy sale icon)[It’s on sale for a reason]
+
+-Glass armor: Shield that can be activated. For one turn, this piece can’t be killed no matter what another piece does to it. Can tank more than 1 hit, if they are done. [Glass might not have been the best choice of material]
+
+-Thor’s Lager: Call down a lightning strike, but it's not very accurate! Be careful.. (Will hit in a plus tile, and kill any piece it hits. Shows the areas it might hit. 1 range. WILL hit a piece. DOES do friendly fire.) 
+
+-Pacify: Pick an enemy piece. All movement/attacks on an enemy piece become movement only attacks. [
+
+-Rabid bite: All movement/attacks on an enemy piece become attack only attacks. [Me when
+
+-Giant Horse Conch (For knight limited area.): When making your moves, pieces that fall under your path of travel are killed, along with the landing piece. [What did you think it said?]
+
+-Rein Carnation: On death, replace this piece with a new one in the same spot [amount spent in shop determines the copy piece type. Icon is a flower. Given to the piece that bought it]
+
+-Wendigo Skull: After activation, the next piece killed will join your side, and can move again. You lose the original attacker. (Can’t be combo’d with Double Agent) [Questionable ethics.]
+
+-Double Agent: You can kill your own pieces for 1 turn. Special- Disable for 5 turns, can reactivate after that. [A red spy is in the base?]
+
+-Tidal Shift: Swap all pawns with the respective piece that started behind it. (Possibly, super chaotic) [Adult swim.]
+
+-Heatseeker Missile: (expensive asf) Yeah just kill any non pawn unit 5 tiles of the queen. [Raytheon ♥️]
+
+-War Flare(expensive asf): Yeah just obliterate a tile 2 radius with artillery. Comes in 1 turn late. []
+
+-Scroll of Distortion: Create 2 spots on the board that act as portals. [Quantum Something]
+
+-No Killing sign: Create a tile where nothing can die, except for kings. 
+
+-Toyota Hilux: Give any pawn a Hilux. Gains queen movement limited to 5 tile radius. Guns can be used. (Icon is the Toyota logo with red black green colors) [Insurrection Truck]
+
+-Kragle: Glue one of your pieces in place- Can’t be killed, but it can't move. [Icon is crazy glue] [Emmett is so cute.]
+
+-Retreat flag: Move a piece to the closest side tile. Uses movement turn. [Why don’t you just concede the whole game?]
+
+-FA-18: Every 8 turns: For $X, call in a strike that kills an entire horizontal row. 1 turn before it lands. (Has sick ass soundbyte) [War haters when they realize it’s cool guys in planes having fun with explosions while sick ass music plays:]
+
+-Helicopter: Every 8 turns: For $X, call in a helicopter that kills a 1.5 tile radius. 1 turn before it lands. [Vietnam]
+
+-Counterspawn: All units summoned last turn are destroyed. Can’t be used the turn it is bought. [Scurtdae- Back to Life]
+
+-Counterspell: Nullify any action that has a non-instant effect. [Interception.]
+
+-C4 Automaton: Create a piece on your backrank. 3 radial range movement no attack. On kill, blows up in a 1 radius explosion with friendly fire. Self-destruct move: Blow up. Can’t move then self-destruct in 1 turn. [It wasn’t originally meant to blow up.]
+
+-Rocket Goat (expensive): Create a goat on backrank. with a rocket launcher. 2 movement 3 range. [It's like a really bad combination of infantry and tanks.]
+
+-Lotto ticket: Gamble. Buy up to 3. Up to 500% profit! (50% chance of 20% profit. 20% half loss. 20% full loss. 5% 200% profit 5% 500% profit) [Man digging through dirt with diamonds inches away before he turns around.]
+
+-CIA Agent: Kill one of your own troops. Costs nothing. Gain money on use. [How unfortunate, he committed suicide]
+
+-Sapling: Plant this. 5 turns later it becomes a fruit bearing tree. When it’s a tree, you gain 10% of the base cost every turn. [Money doesn't gro-]
+
+-Celestial Sapling (glows blue and stuff): 5 turns later this becomes a mystical item bearing tree. Costs money to unearth. When it’s a tree, you gain a random mystical item every 5 turns. [The blue glow is actually just hidden leds]
+
+-Robotic Sapling (has solar panels and stuff): 5 turns later this becomes a robotic item bearing tree. Costs money to unearth. When it’s a tree, you gain a random robotic item every 5 turns. [We don’t know how it actually grows and gets bigger.]
+
+-Mothership Distress Beacon:(like the most expensive item in the game) Gain a dropship. Flies, can’t attack, 4 radial movement, no attack, deploys space octopuses that have 1 range movement/attack behind it. Can deploy 1 octopus per turn at the expense of the turn. [Japanese.]
+
+-Only appears if card game is in play: Robotic arm: Increase card hand size to 5 permanently. [Is this the only thing we could use this arm for?]
+
+-Insurance Contract: Gain money for every piece you lose. [Investing in put options.]
+
+-Obvious Decoy: Pick a piece: Pay for this and that piece. When this piece dies, summon that piece behind or in front of this piece as close as possible. Spawns on backrank. Decoy has 3 rook movements. [I’m sure SOMEONE could be fooled]
+
+-Grave Robber: Gain money for each piece lost in this game. (Doesn't care what type of piece) [The dead don’t need it. They’re dead. Right?]
+
+-The great heist: Steal either 2x what this costs from your opponent. Has a 50% chance to work. Take 2 items if there’s no money. [Bellllbottoms!]
+
+-Bottled Space Dolphin Spirit: Move/attack with a piece 3 times this turn. [Did you bring an infinite bag of musket balls?]
+
+-Counter-Counter-Offensive Sabotage: Your king can not be killed for the next 3 turns. [Comes with counter-counter-counter-counter-sabotage measures]
+
+-Wizard: All spells in the shop are 25% cheaper. Gain access to the chessnut room. (Buy up to 1 chessnut per turn. Spells in the chessnut room cost 3-10 chessnuts. Accessible from the shop.) [Why do we barter in chestnuts? Well, why do you barter with money?]
+
+-Egg: Can be thrown or placed. Doesn’t use turn to do either. Will become a baby goose if it’s placed. When thrown it stuns a piece for 1 turn. Baby Goose has 1 movement 0 attacks. Goose can promote. (secret, on promotion, it becomes the Canadian Baby Goose, gains 5 movement/attack and can fly over obstacles.) [Honk!]
+
+-Horde of Wasps (Spell): Summon a horde of bloodthirsty wasps. Kills any pawns in the path. Follows a chosen vertical or horizontal path from one end of the board to another. [Bees 
+
+-Card pack: Gain 5 cards. Overflows your hand. Discards at end of turn. [Gambling for kids.]
+
+-Gun Costco Membership: Obtain access to the gun section of the shop. Pawns only. [Live and die by the second amendment.]
+
+-Curse of Spore: Give this to a friendly piece. When it dies, cover as many tiles in a 1 tile radius with fungus that must be killed to remove. [At least he died high out of his mind.]
+
+-AliExpress Shipping: Gain 2 knights in 8 turns. Costs half a knight’s cost. [Breaches a patent or two.]
+
+-Secret Service: Given to a king or queen. Non-king/queen enemy pieces can’t go next to the protected piece. [GET DOWN MR PRESIDENT NOO-]
+
+-Bulldoze: Rooks only. Go through a piece, kill it, and continue until you bump into a wall or another piece. [Me going 75 in a school zone.]
+
+-Logistics Sabotage: Opponent can’t use items next turn. [Where’s your airstrike now?]
+
+Tier 1-3 Pawn spawns
+
+-Pop up pawn: After moving, create a pawn in front of the unit. This pawn can’t attack next turn. Can’t be placed 2 tiles to backrank. 
+
+-Pawn Cannon: Gain a pawn, and launch it in any lane up to 4 tiles into the field. The pawn can’t attack next turn. (2x Price)
+
+-HALO Drop Commando: Spawn a commando pawn anywhere but the furthest 3 tiles. This pawn starts with MK18 Special Rifle and can’t be killed the turn after it spawns (except king). Can move/attack to any surrounding tiles with 2 range. (4x price)
+
+Weapons
+
+Not in gun costco
+
+-Throwing knife: Gain the last laugh in any combat scenario. [On death, kill the piece that killed you]
+
+-Assassin knife: When attacking, the pawn kills and moves 1 more step in the direction if possible. 
+
+-Second Amendment: Give all pawns random guns.
+
+In costco (needs gun costco membership)
+
+-Combat boots: +1 movement range. 
+
+-Barrett (Sniper rifle) [2 range, can't shoot any closer or further. 1 movement. Doesn’t move when it shoots.]
+
+-Lewis Gun (Machine Gun) [1 range, can attack twice in 1 turn if possible.]
+
+-Slingshot and Grenade [1 range 1 movement, doesn’t move when it shoots.] 
+
+-Glock 17(Pistol) [1 range 2 movement]
+
+-M4 (Rifle) [1.5 range, 2 movement]
+
+-Piece related
+
+Upgrades
+
+Knights-Dragon: Movement of a knight + diagonal forwards straight forwards
+
+-Unicorn: Gains movement of a knight + 1 tile in any direction afterwards. 
+
+Rooks
+
+-M1 Abrams: Gains a second cannon attack with 1.5 range. 
+
+-Golem: Movement restricted to 3 tiles. Can’t be killed unless the enemy is within 2 tiles. 
+
+Bishops
+
+-Necromancer: Acts like a regular bishop. For every unit killed, spawn 2 pawns near friendly backrank.
+
+-Divine Cleric: Can’t kill. Allied pieces within 2 tiles can be revived for half cost to any spot within the Divine cleric’s range. Keeps bishop movement.
+
+Fusion
+
+When 2 pieces of a type exist and are both upgraded to unique paths, the next time one enters the shop the upgrades will be glowing and by sacrificing both pieces you can create an “Alignation” which is a piece that combines all features of the base piece, both upgrades, and has a massive power spike. Very expensive. Spawns at backrank wherever the player chooses.
+
+-Iron Warden: Poor movement(2). Can’t be killed by any piece without ranged attacks. Takes 4 ranged attacks to kill it. 2 range cannon. Can attack twice per turn. (Rook)
+
+-Sky Strider: Can move over any piece like a unicorn or a queen. (Knight)
+
+-Archmage: Regular movement/attack. 3 Unique moves: Summon, Cast, Warp. Summon: Create a pawn. Cast: 3 range vertical/horizontal attack that ignores obstacles. Warp: Teleport to a tile more than 5 tiles away. (Bishop)
+
+3 States of a tile: Can move there, can’t move there, can attack there

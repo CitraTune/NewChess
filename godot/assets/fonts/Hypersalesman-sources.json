@@ -1,0 +1,100 @@
+[
+  {
+    "number": 71,
+    "name": "Krefeld Condensed",
+    "displayName": "KREFELD CONDENSED",
+    "type": "Condensed sans serif / display",
+    "description": "Tall narrow capitals with firm upright strokes, close proportions and clean counters.",
+    "origin": "From the HOLLÄNDISCHE KUNSTAUSSTELLUNG lettering on Jan Thorn Prikker’s 1903 poster for the Dutch art exhibition at the Kaiser Wilhelm Museum in Krefeld. Printed by S. Lankhout & Co. in The Hague, it advertised the exhibition held May 20–August 2, 1903.",
+    "sources": [
+      {
+        "label": "MK&G Hamburg — poster EP2013.984, 1903",
+        "url": "https://www.mkg-hamburg.de/sammlung/objekt/hollandische-kunstausstellung-krefeld/EP2013.984/dc00062588",
+        "kind": "reference"
+      },
+      {
+        "label": "Library of Congress — exhibition poster record",
+        "url": "https://www.loc.gov/pictures/item/93500943/",
+        "kind": "reference"
+      },
+      {
+        "label": "Entire supplied book photograph",
+        "url": "../assets/font-collection/references/71-72-krefeld-original-book.jpg",
+        "kind": "reference"
+      }
+    ],
+    "fontFile": "../assets/font-collection/71-krefeld-condensed.otf",
+    "format": "OTF",
+    "version": "Version 1.001",
+    "nameImage": "../assets/font-collection/71-krefeld-condensed.svg",
+    "fontFamily": "Restored-71",
+    "style": "Condensed",
+    "specimen": "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n0123456789\nÄ Ö Ü ß Ą Ć Ę Ł Ń Ó Ś Ź Ż",
+    "image": {
+      "path": "../assets/font-collection/references/71-72-krefeld-reference.webp",
+      "source": "https://www.mkg-hamburg.de/sammlung/objekt/hollandische-kunstausstellung-krefeld/EP2013.984/dc00062588",
+      "caption": "The complete Krefeld exhibition poster area from the supplied book photograph. Jan Thorn Prikker, 1903.",
+      "alt": "Krefeld exhibition poster with ornamental orange, yellow and green panels, narrow exhibition lettering and broad KREFELD lettering.",
+      "kind": "supplied photographed book reproduction",
+      "note": "Exact printing impression and book edition unconfirmed. The museum catalogue identifies the designer and printer of the historical poster.",
+      "rotation": 0,
+      "detail": {
+        "path": "../assets/font-collection/references/71-krefeld-condensed-headline.webp",
+        "caption": "Selected HOLLÄNDISCHE KUNSTAUSSTELLUNG source lettering for Krefeld Condensed."
+      }
+    },
+    "history": {
+      "artist": "Jan (Johan) Thorn Prikker · poster designer",
+      "date": "1903 · exhibition May 20–August 2"
+    }
+  },
+  {
+    "number": 76,
+    "name": "Railway 1901",
+    "displayName": "RAILWAY 1901",
+    "type": "High-contrast serif / display",
+    "description": "Broad upright capitals with fine serifs, strong stroke contrast, wide R bowls and curled leg terminals.",
+    "origin": "From The Railway Magazine’s October 1901 cover, no. 52, volume IX. The source photograph and matching historical scan show the same issue; the cover artist and letterer are unidentified, and editor G. A. Sekon is not an artist credit.",
+    "sources": [
+      {
+        "label": "Wikimedia Commons — matching complete October 1901 cover",
+        "url": "https://commons.wikimedia.org/wiki/File:The_Railway_Magazine_October_1901_cover_688.jpg",
+        "kind": "reference"
+      },
+      {
+        "label": "The Railway Magazine — publisher’s issue index",
+        "url": "https://www.railwaymagazine.co.uk/archive/index/",
+        "kind": "reference"
+      },
+      {
+        "label": "Entire supplied upright book photograph",
+        "url": "../assets/font-collection/references/76-railway-1901-supplied-photo.jpg",
+        "kind": "reference"
+      }
+    ],
+    "fontFile": "https://hypersalesman-font-assets.jameshanzimanolis.workers.dev/assets/font-collection/kerning-20261024/76-railway-1901.otf?v=1.007",
+    "format": "OTF",
+    "version": "Version 1.007",
+    "nameImage": "https://hypersalesman-font-assets.jameshanzimanolis.workers.dev/assets/font-collection/kerning-20261024/76-railway-1901.svg?v=1.007",
+    "fontFamily": "Restored-76",
+    "style": "Regular",
+    "specimen": "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n0123456789\n@ & % ! ?",
+    "image": {
+      "path": "../assets/font-collection/references/76-railway-1901-reference.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Railway_Magazine_October_1901_cover_688.jpg",
+      "caption": "The Railway Magazine, October 1901, No. 52, Vol. IX: complete cover scan by Redrose64, shared through Wikimedia Commons.",
+      "alt": "The Railway Magazine cover with red serif title lettering, an illustrated steam train and October 1901, No. 52, Vol. IX printed along the bottom.",
+      "kind": "matching historical cover scan",
+      "note": "The scan shows the same issue and cover design as the photographed source; it is not established as the exact physical copy. The editor’s name in the scan metadata is not an artist credit.",
+      "rotation": 0,
+      "detail": {
+        "path": "../assets/font-collection/references/76-railway-1901-headline.webp",
+        "caption": "Title lettering selected from the supplied book photograph for Railway 1901."
+      }
+    },
+    "history": {
+      "artist": "Not identified",
+      "date": "October 1901 · issue 52, volume IX"
+    }
+  }
+]

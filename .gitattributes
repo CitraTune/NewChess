@@ -1,0 +1,14 @@
+* text=auto
+*.gd text eol=lf
+*.gdshader text eol=lf
+*.tscn text eol=lf
+*.godot text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.ps1 text eol=crlf
+*.ttf binary
+*.otf binary
+*.docx binary
+# Preserve whitespace in downloaded notices and the original design transcription.
+godot/assets/fonts/*-*.txt whitespace=-blank-at-eol,-blank-at-eof
+docs/design-source.txt whitespace=-blank-at-eol,-blank-at-eof
