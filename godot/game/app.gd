@@ -139,7 +139,7 @@ func _ready() -> void:
 			hand._pointer=hand.get_global_transform().affine_inverse()*_pointer
 	)
 	_show_menu()
-	print("DREAM_CHESS_READY native Godot %s / %s / %s" % [Engine.get_version_info().string,RenderingServer.get_current_rendering_method(),AudioServer.get_driver_name()])
+	print("SCHEDULE_1_CHESS_READY native Godot %s / %s / %s" % [Engine.get_version_info().string,RenderingServer.get_current_rendering_method(),AudioServer.get_driver_name()])
 	if "--self-test" in _startup_args:
 		_run_smoke.call_deferred()
 	elif "--network-app-host" in _startup_args or "--network-app-client" in _startup_args:
@@ -354,7 +354,7 @@ func _build_battle() -> void:
 	enemy_label=_label(screen,"",Rect2(52,375,190,54),20,CourtPalette.MUTED)
 	timer_label=_label(screen,"",Rect2(52,441,190,40),23,CourtPalette.TEAL,false,true)
 	var visit=_button(screen,"THE BAZAAR",Rect2(51,507,186,56),_shop_pressed,"OpenShop")
-	_button(screen,"END TURN",Rect2(51,578,186,56),func() -> void: command({"op":"pass"}),"EndTurn")
+	_button(screen,"END TURN EARLY",Rect2(51,578,186,56),func() -> void: command({"op":"pass"}),"EndTurn")
 	var flip=_button(screen,"",Rect2(116,681,54,54),func() -> void: board.flipped=not board.flipped,"FlipBoard")
 	var flip_art=load("res://ui/flip_icon.gd").new()
 	flip_art.size=Vector2(48,48)
@@ -426,6 +426,7 @@ func _refresh(messages: Array = []) -> void:
 		return
 	board.game = game
 	board.reduced_motion = options.reduced_motion
+	board.economy_visible=game.market_unlocked
 	board.play(messages)
 	for event in messages:
 		if event.kind=="card" and not _history_open: _queue_card_presentation(event)
@@ -434,6 +435,8 @@ func _refresh(messages: Array = []) -> void:
 	turn_label.add_theme_color_override("font_color",CourtPalette.PAPER if game.turn==0 else Color("c9b4e8"))
 	money_label.text = "$%d" % game.players[role()].money
 	enemy_label.text = "Enemy treasury\n$%d" % game.players[1-role()].money
+	money_label.visible=game.market_unlocked
+	enemy_label.visible=game.market_unlocked
 	var visit = screen.find_child("OpenShop",true,false)
 	if visit is Button:
 		visit.visible=game.market_unlocked and not _history_open
@@ -442,10 +445,10 @@ func _refresh(messages: Array = []) -> void:
 		visit.add_theme_font_size_override("font_size",16 if visit.text.begins_with("CLICK") else 20)
 	var pass_button = screen.find_child("EndTurn",true,false)
 	if pass_button is Button:
-		pass_button.visible=not _history_open
+		pass_button.visible=not _history_open and game.ply>=9
 		pass_button.disabled=not can_act() or game.shop_open or game.discard_due>=0
 	_update_hint()
-	_update_hand()
+	_update_hand(not messages.is_empty())
 	_update_shelf()
 	_update_highlights()
 	_update_sidebar()
@@ -462,21 +465,22 @@ func _refresh(messages: Array = []) -> void:
 func can_act() -> bool:
 	return not _presenting_card and not _history_open and _overlay_kind not in ["pause","shop-warning"] and game != null and game.winner==-1 and game.turn==role() and (not mode.begins_with("online") or network.active)
 
-func _update_hand() -> void:
+func _update_hand(animate_draws: bool = false) -> void:
 	var view=board.game if _history_open else game
 	var definitions: Array=[]
 	for held in view.players[role()].hand:
 		var d=ChessCatalog.entry(held.id).duplicate(true)
 		if d.is_empty(): continue
+		d._hand_key="%s:%d"%[held.id,int(held.get("born",0))]
 		if d.id=="collector": d.description+=" Current value: $%d."%(10*int((view.ply-held.born)/2))
 		definitions.append(d)
-	hand.set_cards(definitions)
+	hand.set_cards(definitions,false,animate_draws and not _history_open)
 	hand.enabled=can_act() and not game.shop_open and game.shots==0 and _overlay_kind=="" and game.discard_due<0
 	hand.armed_index=_target.get("index",-1) if _target.get("op","")=="card" else -1
 	hand.reduced_motion=options.reduced_motion
 	var backs: Array=[]
 	for ignored in view.players[1-role()].hand: backs.append({"id":"hidden"})
-	enemy_hand.set_cards(backs,true)
+	enemy_hand.set_cards(backs,true,animate_draws and not _history_open)
 	enemy_hand.reduced_motion=options.reduced_motion
 	enemy_count.text=str(backs.size())
 	enemy_count.visible=not backs.is_empty()
@@ -523,6 +527,7 @@ func _piece_description(p: Dictionary) -> String:
 		"pawn":"Advance straight. Capture diagonally. Reach the far rank to promote.","knight":"Leap in an L shape. Pieces in the way do not matter.","bishop":"Slide diagonally. Other pieces block the path.","rook":"Slide along ranks and files. Other pieces block the path.","queen":"Slide along ranks, files and diagonals.","king":"One square in any direction. Worth $500, but its death does not end the battle.","frog":"Advance one or two squares. Capture diagonally. Can promote.","goose":"One-square movement. Cannot attack. Reach the far rank for an unreasonable surprise.","canadian":"Five-square movement and attack. Flies over pieces.","automaton":"Three-square movement, no attack. Explodes on death or by ability.","goat":"Two-square movement. Three-square rocket attack.","dropship":"Four-square flight. Deploy an octopus instead of moving.","commando":"Two-square movement and ranged attack.","octopus":"One square in any direction.","tree":"An investment. Matures after five rounds.","fungus":"An obstacle left by the Curse of Spore.","decoy":"Rook movement up to three squares. Releases a knight on death.","hidden":"Blanketed by its owner. Its identity is temporarily concealed."
 	}
 	var value = descriptions.get(p.type,"")
+	if p.type=="king" and not game.market_unlocked: value="One square in any direction. Its death does not end the battle."
 	if p.upgrade!="": value += "\nUpgrade: "+p.upgrade+"."
 	if p.fusion!="": value += "\nAlignation: "+p.fusion+"."
 	if not p.gear.is_empty():
@@ -566,24 +571,54 @@ func _update_sidebar() -> void:
 		_paragraph(sidebar,str(_target.get("prompt","Choose a highlighted square."))+" Esc cancels.",Rect2(27,365,581,65),20,CourtPalette.TEAL)
 	var chronicle_zone=CourtLink.new()
 	chronicle_zone.name="OpenChronicle"
-	chronicle_zone.position=Vector2(15,445)
-	chronicle_zone.size=Vector2(607,195)
+	chronicle_zone.position=Vector2(24,454)
+	chronicle_zone.size=Vector2(335,54)
+	chronicle_zone.text="THE CHRONICLE"
+	chronicle_zone.alignment=HORIZONTAL_ALIGNMENT_LEFT
+	chronicle_zone.add_theme_font_override("font",CourtPalette.BOLD)
+	chronicle_zone.add_theme_font_size_override("font_size",31)
+	chronicle_zone.add_theme_color_override("font_color",CourtPalette.GOLD)
 	chronicle_zone.reduced_motion=options.reduced_motion
 	chronicle_zone.pressed.connect(_open_history)
 	sidebar.add_child(chronicle_zone)
-	_label(chronicle_zone,"THE CHRONICLE  ›",Rect2(12,11,560,27),20,CourtPalette.GOLD,false,true)
-	var lines=[]
-	for line in game.log_lines.slice(0,4): lines.append("• "+str(line))
-	_paragraph(chronicle_zone,"\n".join(lines),Rect2(12,53,581,105),18,CourtPalette.MUTED)
-	_label(chronicle_zone,"CLICK TO EXPLORE THE PAST",Rect2(12,168,581,24),16,CourtPalette.MUTED,false,true)
+	_add_history_navigation(sidebar)
+
+func _add_history_navigation(parent: Control) -> void:
+	for direction in [-1,1]:
+		var button=_button(parent,"←" if direction<0 else "→",Rect2(24 if direction<0 else 108,589,72,40),func() -> void: _step_history(direction),"PreviousMove" if direction<0 else "NextMove")
+		button.add_theme_font_size_override("font_size",28)
+		for state in ["normal","hover","pressed","focus","disabled"]:
+			var style=theme.get_stylebox(state,"Button").duplicate()
+			style.content_margin_top=3
+			style.content_margin_bottom=3
+			button.add_theme_stylebox_override(state,style)
+	_sync_history_navigation()
+
+func _sync_history_navigation() -> void:
+	var parent=_history_panel if _history_open else sidebar
+	if not is_instance_valid(parent): return
+	var previous=parent.get_node_or_null("PreviousMove")
+	var next=parent.get_node_or_null("NextMove")
+	if previous!=null: previous.disabled=(_history_index<=0 if _history_open else _timeline_entries().size()<2)
+	if next!=null: next.disabled=not _history_open
+
+func _step_history(direction: int) -> void:
+	if _menu_open or _overlay_kind!="": return
+	var latest=_timeline_entries().size()-1
+	if not _history_open:
+		if direction<0 and latest>0: _open_history(latest-1)
+	elif direction>0 and _history_index+1>=latest:
+		_close_history()
+	else: _history_panel.seek(_history_index+direction)
 
 func _update_highlights() -> void:
 	if not is_instance_valid(board): return
 	board.selected_id = _selected
 	board.target_mode = not _target.is_empty()
 	board.preview_kind = _target.get("definition",{}).get("id","")
+	board.inspecting_enemy=not game.piece(_selected).is_empty() and game.piece(_selected).side!=role()
 	if _target.is_empty():
-		board.highlighted = game.legal_moves(game.piece(_selected)) if _selected>=0 else []
+		board.highlighted = game.preview_moves(game.piece(_selected)) if _selected>=0 else []
 	elif _target.op in ["card","item"]:
 		board.highlighted = game.targets(_target.definition,_positions.size(),_positions)
 	elif _target.op=="fuse":
@@ -595,10 +630,15 @@ func _update_highlights() -> void:
 		board.highlighted = _ability_targets()
 
 func _square_clicked(pos: Vector2i) -> void:
-	if not can_act() or board.busy or _overlay_kind!="" or card_drag.active or game.discard_due>=0:
+	if _history_open or _menu_open or board.busy or _overlay_kind!="" or card_drag.active or game.discard_due>=0:
 		return
 	_hide_tip()
 	_inspected = {}
+	if not can_act():
+		_selected=int(game.at(pos).get("id",-1))
+		_update_highlights()
+		_update_sidebar()
+		return
 	if not _target.is_empty():
 		if pos not in board.highlighted:
 			_notify("Choose one of the highlighted targets.")
@@ -614,9 +654,9 @@ func _square_clicked(pos: Vector2i) -> void:
 		else: command({"op":"ability","id":_selected,"ability":_target.ability,"pos":pos,"grave":_target.get("grave",-1)})
 		return
 	var p = game.at(pos)
-	if pos in board.highlighted and _selected>=0:
+	if pos in board.highlighted and _selected>=0 and game.piece(_selected).get("side",-1)==role():
 		command({"op":"move","id":_selected,"pos":pos})
-	elif not p.is_empty() and p.side==role():
+	elif not p.is_empty():
 		_selected = int(p.id)
 		audio.play_sound("select")
 		_refresh()
@@ -1080,21 +1120,6 @@ func _notify(message: String, error: bool = false) -> void:
 func _reveal(event: Dictionary) -> void:
 	var definition=ChessCatalog.entry(event.get("item",""))
 	_notify("DISCOVERED: "+definition.get("name",event.text))
-	if options.reduced_motion or _overlay_kind!="": return
-	var glint=TextureRect.new()
-	glint.texture=CourtPixels.texture(event.get("item","star"))
-	glint.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST
-	glint.position=Vector2(700,320)
-	glint.size=Vector2(200,200)
-	glint.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
-	glint.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	glint.z_index=90
-	add_child(glint)
-	glint.add_to_group("discovery_effect")
-	var tween=create_tween()
-	tween.tween_property(glint,"position:y",285.0,0.3).set_trans(Tween.TRANS_QUAD)
-	tween.tween_property(glint,"modulate:a",0.0,0.5)
-	tween.tween_callback(glint.queue_free)
 
 func _save_game() -> void:
 	if game==null or mode.begins_with("online"): return
@@ -1172,17 +1197,19 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	if _history_open:
 		match event.keycode:
-			KEY_LEFT: _history_panel.seek(_history_index-1)
+			KEY_LEFT: _step_history(-1)
 			KEY_W: _history_panel.action_step(-1)
 			KEY_S: _history_panel.action_step(1)
 			KEY_A: _history_panel.turn_page(-1)
 			KEY_D: _history_panel.turn_page(1)
-			KEY_RIGHT: _history_panel.seek(_history_index+1)
+			KEY_RIGHT: _step_history(1)
 			KEY_HOME: _history_panel.seek(0)
 			KEY_END: _history_panel.seek(_timeline_entries().size()-1)
 			KEY_ESCAPE: _close_history()
 		return
 	match event.keycode:
+		KEY_LEFT:
+			if not _menu_open and _overlay_kind=="": _step_history(-1)
 		KEY_ESCAPE:
 			if _overlay_kind!="": _leave_overlay()
 			elif not _target.is_empty():
@@ -1330,12 +1357,12 @@ func _timeline_entries() -> Array:
 	if not game.history.is_empty(): return game.history
 	return [{"label":"Position when this save was opened","actor":game.turn,"ply":game.ply,"state":game.snapshot(false),"notes":["Earlier actions were not recorded in this older save."],"events":[]}]
 
-func _open_history() -> void:
+func _open_history(index: int = -1) -> void:
 	if _history_open or _overlay_kind!="" or _menu_open: return
 	card_drag.cancel()
 	_history_open=true
 	_history_preview_index=-1
-	_history_index=_timeline_entries().size()-1
+	_history_index=_timeline_entries().size()-1 if index<0 else clampi(index,0,_timeline_entries().size()-1)
 	_target={}
 	_selected=-1
 	_hide_tip()
@@ -1343,12 +1370,14 @@ func _open_history() -> void:
 	_history_panel=CourtChronicle.new()
 	_history_panel.name="ChronicleReplay"
 	_history_panel.viewer_side=role()
+	_history_panel.money_visible=game.market_unlocked
 	sidebar.add_child(_history_panel)
 	_history_panel.selected.connect(_seek_history)
 	_history_panel.previewed.connect(_preview_history)
 	_history_panel.preview_ended.connect(_end_history_preview)
 	_history_panel.closed.connect(_close_history)
 	_history_panel.show_entries(_timeline_entries(),_history_index)
+	_add_history_navigation(_history_panel)
 	_seek_history(_history_index)
 
 func _seek_history(index: int) -> void:
@@ -1357,6 +1386,7 @@ func _seek_history(index: int) -> void:
 	_history_preview_index=-1
 	_history_panel.show_details(_history_index)
 	_display_history(_history_index)
+	_sync_history_navigation()
 
 func _preview_history(index: int) -> void:
 	if not _history_open: return
@@ -1366,10 +1396,12 @@ func _preview_history(index: int) -> void:
 	for event in ChessMatch.decode(_timeline_entries()[index].get("events",[])):
 		if event.get("kind","")=="card":
 			var d=ChessCatalog.entry(event.item).duplicate(true)
-			var outcomes: Array=_timeline_entries()[index].get("notes",[]).filter(func(note: String) -> bool: return not note.ends_with("played.") and not note.ends_with("to move."))
+			var outcomes: Array=[]
+			for note in _timeline_entries()[index].get("notes",[]):
+				var visible=_history_panel.visible_note(str(note))
+				if visible!="" and not visible.ends_with("played.") and not visible.ends_with("to move."): outcomes.append(visible)
 			d.description+="\n\nPlayed by %s."%["Ivory" if event.get("side",0)==0 else "Onyx"]
-			if not outcomes.is_empty(): d.description+="\n"+str(outcomes[0])
-			if outcomes.size()>1: d.description+="\n%d more outcomes in Chronicle details."%(outcomes.size()-1)
+			if not outcomes.is_empty(): d.description+="\n"+"\n".join(outcomes)
 			_show_tip(d)
 			break
 
@@ -1390,6 +1422,7 @@ func _display_history(index: int) -> void:
 	var changed_size=board.game.board_size!=_history_view.board_size
 	board.game=_history_view
 	board.replay=true
+	board.economy_visible=game.market_unlocked
 	board.replay_marks.clear()
 	for p in before.pieces:
 		var after=_history_view.piece(p.id)
@@ -1416,6 +1449,8 @@ func _display_history(index: int) -> void:
 	turn_label.text="REPLAY\nROUND %d"%_history_view.round_number()
 	money_label.text="$%d"%_history_view.players[role()].money
 	enemy_label.text="Enemy treasury\n$%d"%_history_view.players[1-role()].money
+	money_label.visible=game.market_unlocked
+	enemy_label.visible=game.market_unlocked
 	timer_label.text="HOVER PREVIEW" if _history_preview_index>=0 else "PINNED"
 	for button_name in ["OpenShop","EndTurn"]:
 		var button=screen.find_child(button_name,true,false)

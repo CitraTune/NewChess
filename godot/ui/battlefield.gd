@@ -14,6 +14,8 @@ var coordinates = false
 var reduced_motion = false
 var busy = false
 var replay = false
+var economy_visible = false
+var inspecting_enemy = false
 var replay_marks: Dictionary = {}
 var _hover = Vector2i(-1,-1)
 var _time = 0.0
@@ -70,7 +72,7 @@ func play(messages: Array) -> void:
 		if event.kind in ["move","warp"] and event.has("id") and event.has("from"):
 			_moves[int(event.id)] = {"from":event.from,"to":event.pos,"t":0.0}
 		if event.kind in ["capture","shield","mystery","card_draw","shot","strike"] and event.has("pos"):
-			_bursts.append({"pos":event.pos,"t":0.0,"kind":event.kind,"value":event.get("value",0),"positive":event.get("positive",true),"neutral":event.get("event","") in ["morph","companion"]})
+			_bursts.append({"pos":event.pos,"t":-0.14 if event.kind=="mystery" else 0.0,"kind":event.kind,"value":event.get("value",0),"positive":event.get("positive",true),"neutral":event.get("event","") in ["morph","companion"],"seed":absi(ChessMatch.key(event.pos).hash())%997})
 		if event.kind=="expansion":
 			fit()
 
@@ -81,7 +83,7 @@ func _process(delta: float) -> void:
 		if _moves[id].t>=1:
 			_moves.erase(id)
 	for burst in _bursts:
-		burst.t += delta*1.6
+		burst.t += delta/(1.45 if burst.kind=="mystery" else 0.7)
 	_bursts = _bursts.filter(func(b: Dictionary) -> bool: return b.t<1)
 	busy = not _moves.is_empty()
 	queue_redraw()
@@ -149,10 +151,10 @@ func _draw() -> void:
 				if not game.at(pos).is_empty():
 					draw_rect(rect.grow(-3),CourtPalette.RED if not target_mode else CourtPalette.TEAL,false,3)
 				else:
-					draw_circle(center,maxf(4,cell*0.09),CourtPalette.TEAL if target_mode else CourtPalette.GOLD)
+					draw_circle(center,maxf(4,cell*0.09),CourtPalette.TEAL if target_mode or inspecting_enemy else CourtPalette.GOLD)
 	# Discovery particles sit beneath the pieces and stay within half a square.
 	for burst in _bursts:
-		if burst.kind in ["mystery","card_draw"]: _draw_discovery(burst,cell)
+		if burst.kind in ["mystery","card_draw"] and burst.t>=0: _draw_discovery(burst,cell)
 	for p in game.pieces:
 		var center = square_center(p.pos)
 		if _moves.has(int(p.id)):
@@ -178,7 +180,7 @@ func _draw() -> void:
 		if burst.kind in ["mystery","card_draw"]: continue
 		var center = square_center(burst.pos)
 		var t = burst.t
-		if burst.value>0:
+		if burst.value>0 and economy_visible:
 			draw_string(CourtPalette.BOLD,center+Vector2(-25,-20-t*35),"+$%d"%burst.value,HORIZONTAL_ALIGNMENT_LEFT,100,22,Color(CourtPalette.GOLD,1-t))
 		if not reduced_motion:
 			for i in range(8):
@@ -201,20 +203,26 @@ func _draw_discovery(burst: Dictionary, cell: float) -> void:
 	var center=square_center(burst.pos)
 	var t=float(burst.t)
 	var color=Color.WHITE
-	if not burst.neutral: color=color.lerp(CourtPalette.TEAL if burst.positive else CourtPalette.RED,clampf((t-0.08)*5,0,1))
-	color.a=(1-t)*0.9
-	draw_circle(center,cell*0.32,Color(color,0.17*(1-t)))
-	var count=7 if reduced_motion else 14
+	if not burst.neutral: color=color.lerp(Color("75ed98") if burst.positive else Color("ff807a"),clampf((t-0.19)*9,0,1))
+	var envelope=sin(minf(1,t*5)*PI/2)*(1-t)
+	draw_circle(center,cell*0.44,Color(color,0.25*envelope))
+	draw_circle(center,cell*0.32,Color(Color.WHITE,0.14*envelope))
+	var count=9 if reduced_motion else 23
 	for i in range(count):
-		var angle=i*TAU/count+sin(i*7.3)*0.2
-		var radius=cell*(0.10 if reduced_motion else 0.31*sqrt(t))
+		var scatter=fposmod(sin(i*73.17+float(burst.seed))*437.59,1.0)
+		var age=clampf((t-scatter*0.12)/(1-scatter*0.12),0,1)
+		if age<=0: continue
+		var angle=i*2.39996+scatter*1.8
+		var radius=cell*(0.30 if reduced_motion else (0.26+pow(age,0.6)*(0.10+scatter*0.05)))
 		var point=center+Vector2.from_angle(angle)*radius
 		var star=PackedVector2Array()
-		var scale_value=cell*(0.035+(i%4)*0.014)*(1-t*0.55)
+		var scale_value=cell*(0.04+scatter*0.045)*(1-age*0.65)
 		for j in range(10):
-			var spin=0.0 if reduced_motion else t*(2.5 if i%2==0 else -2.5)
+			var spin=0.0 if reduced_motion else age*(3.8 if i%2==0 else -4.2)
 			star.append(point+Vector2.from_angle(j*TAU/10+angle+spin)*scale_value*(1.0 if j%2==0 else 0.4))
-		draw_colored_polygon(star,color)
+		var opacity=minf(1,age*20)*pow(1-age,0.7)
+		draw_circle(point,scale_value*1.5,Color(color,opacity*0.16))
+		draw_colored_polygon(star,Color(color,opacity))
 
 func draw_ellipse_shadow(center: Vector2, radius: Vector2) -> void:
 	var points = PackedVector2Array()

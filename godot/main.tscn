@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dub1mkyxal2mx" path="res://game/app.gd" id="1_main"]
 
-[node name="DreamChess" type="Control" unique_id=343315587]
+[node name="Schedule1Chess" type="Control" unique_id=343315587]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

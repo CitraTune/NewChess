@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
-from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -96,6 +95,12 @@ sections = [
  'The first campaign battle also begins with locked Bazaar and cards. Later encounters retain systems already unlocked, seed seven fresh hidden mysteries, and add the three draw markers if cards are unlocked. Hands reset between encounters; Scholar’s Charm grants its documented starting cards when the card system is active.',
  'Solo, local and campaign actions autosave. Settings are saved separately. The renamed prototype copies existing Dream Chess II saves and preferences into Schedule 1 Chess only when no current file exists, preserving the original files. Automated interface checks use separate test saves and preferences. Network games remain live host sessions and do not produce resumable offline saves.'
 ])]
+sections[0][1].append('The live game is GDScript with a Godot shader. Python and PowerShell support content authoring and local development. Unused Java source, JAR dependencies, old IDE profiles, Java CI, the Gatsby font experiment and release export tasks have been removed. The main menu now uses three closely spaced rows of five decorative chessboards.')
+sections[2][1].append('End Turn Early appears from the tenth player turn onward. Before that, players finish a turn by moving or taking another turn-ending action. Clicking any opposing piece pins its identity and details in Particulars and shows its potential movement. This preview respects that piece\'s restrictions, cannot command it and does not change the game state.')
+sections[3][1].append('The sparkle lasts about one and a half seconds after arrival. Stars begin around the piece silhouette, spread asymmetrically and remain within half a tile. Each event chooses one color only: white to green for a positive result, or white to red for a negative result, then fades. It never cycles between red and green for one discovery.')
+sections[5][1].append('Every card has its own detailed original 48 pixel illustration. Drawing a card slides it into the fan from the hand\'s right edge while fading from transparent to opaque. Multiple draws are slightly staggered and existing cards remain in place.')
+sections[6][1].append('The economy is concealed until the Bazaar unlocks. Captures still earn their full bounties, but treasury labels, floating money amounts, king bounty copy and Chronicle financial hints are hidden. Once the Bazaar opens, the recorded earlier bounties become visible retroactively in Chronicle. Label the discovery only The Bazaar awakens rather than repeating it as Mystery Shop.')
+sections[7][1].append('On the live screen, a large yellow Chronicle title is the entire hover-tilt target. Remove the live bullet history and Click to Explore caption. Fixed left and right move arrows sit at the bottom of the right column in both live and replay views. Left immediately opens the preceding move. Right is muted and disabled while live; advancing to the latest move returns to the main game automatically.')
 for heading, paras in sections:
     doc.add_paragraph(heading, 'Heading 1')
     for text in paras: doc.add_paragraph(text)
@@ -120,7 +125,7 @@ for item in catalog['items']:
     p = doc.add_paragraph()
     p.add_run(f'{price}. ').bold = True
     p.add_run(item['description'])
-    if item.get('reusable'): p.add_run(f" Reusable after {item['reusable']} rounds.")
+    if item.get('reusable') and not any(word in item['description'].lower() for word in ['reusable','cooldown']): p.add_run(f" Reusable after {item['reusable']} rounds.")
     if item['flavor']: p.add_run(' ' + item['flavor']).italic = True
 
 doc.add_page_break()

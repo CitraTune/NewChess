@@ -8,6 +8,7 @@ var hover_amount = 0.0
 var press_amount = 0.0
 var armed = false
 var slot_number = -1
+var arrival = -1.0
 
 static func tint(id: String) -> Color:
 	var palettes={"frog":"c8dfa9","grass":"b9d3ab","rat":"dfc29c","lasso":"e7ba9e","greed":"efda9f","collector":"e5ce9a","scavenge":"ead3b0","radio":"bed8e2","blackhole":"cac1df","blanket":"cfbee0","skyhook":"c3dbe1","gale":"bbd5ce","warp":"c3c9e1","ticket":"e1c1b3","vest":"c2d0b5","scissors":"d8d4c3","dnd":"d8bec3","traffic":"e0b8a7","union":"c2d4b0","eject":"b9d2da"}

@@ -10,6 +10,7 @@ var groups: Array=[]
 var cursor=0
 var page=0
 var viewer_side=0
+var money_visible=false
 var _title: Label
 var _page_label: Label
 var _rows: VBoxContainer
@@ -36,7 +37,7 @@ func _ready() -> void:
 	_rows.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	_rows.add_theme_constant_override("separation",9)
 	_scroll.add_child(_rows)
-	_button("RETURN TO LIVE BOARD",Rect2(24,589,589,40),func() -> void: closed.emit())
+	_button("BACK TO LIVE",Rect2(208,589,405,40),func() -> void: closed.emit())
 
 func show_entries(value: Array, index: int = -1) -> void:
 	entries=value
@@ -82,21 +83,31 @@ func action_step(direction: int) -> void:
 
 func action_text(index: int) -> String:
 	var entry=entries[index]
-	var parts: Array[String]=[str(entry.label)]
+	var parts: Array[String]=[visible_note(str(entry.label))]
 	var events=ChessMatch.decode(entry.get("events",[]))
 	for event in events:
-		var text=str(event.get("text",""))
+		var text=visible_note(str(event.get("text","")))
+		if not money_visible and event.get("kind","")=="capture":
+			text=str(event.get("text","")).split(". +$")[0]+("." if str(event.get("text","")).contains(". +$") else "")
 		if event.get("kind","")=="turn" or text.ends_with("played.") or event.get("kind","")=="move": continue
 		if event.get("kind","")=="mystery":
-			parts.append("Mystery " + str(event.get("event","surprise")).capitalize())
+			parts.append("The Bazaar awakens" if event.get("event","")=="shop" else "Mystery " + str(event.get("event","surprise")).capitalize())
 		elif event.get("kind","")=="heist":
+			if not money_visible: continue
 			var delta=int(event.get("value",0))*(1 if int(event.get("side",0))==viewer_side else -1)
 			parts.append("%s$%d"%["+" if delta>=0 else "-",absi(delta)])
 		elif text!="" and text not in parts: parts.append(text)
 	if events.is_empty():
 		for note in entry.get("notes",[]):
-			if not str(note).ends_with("to move.") and str(note) not in parts: parts.append(str(note))
+			var text=visible_note(str(note))
+			if text!="" and not text.ends_with("to move.") and text not in parts: parts.append(text)
 	return " · ".join(parts)
+
+func visible_note(text: String) -> String:
+	if money_visible: return text
+	for word in ["$","money","treasury","bounty","compensated","purse"]:
+		if text.to_lower().contains(word): return ""
+	return text
 
 func _render() -> void:
 	if not is_instance_valid(_rows) or groups.is_empty(): return

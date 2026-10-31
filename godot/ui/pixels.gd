@@ -47,6 +47,10 @@ static func motif(id: String) -> String:
 static func texture(id: String, side: int = -1) -> Texture2D:
 	var cache_key = id+":"+str(side)
 	if cache.has(cache_key): return cache[cache_key]
+	if side==-1 and id in CourtCardArt.IDS:
+		var illustration=CourtCardArt.texture(id)
+		cache[cache_key]=illustration
+		return illustration
 	var pattern = PATTERNS[motif(id)]
 	var image = Image.create(20,20,false,Image.FORMAT_RGBA8)
 	var fill = CourtPalette.PAPER if side==0 else (Color("b5a4d5") if side==1 else Color("f2c86c"))

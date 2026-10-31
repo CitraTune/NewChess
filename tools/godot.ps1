@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('Editor','Import','Run','Test','Rules','NetworkTest','Verify','Export','TestExport','PlayExport','Version')]
+    [ValidateSet('Editor','Import','Run','Test','Rules','NetworkTest','Verify','Version')]
     [string]$Action = 'Run',
     [switch]$Headless
 )
@@ -10,8 +10,6 @@ $engineDir = Join-Path $env:LOCALAPPDATA 'NewChess\tools\godot-4.7.2'
 $engine = Join-Path $engineDir 'Godot_v4.7.2-stable_win64_console.exe'
 if ($env:NEWCHESS_GODOT) { $engine = $env:NEWCHESS_GODOT }
 if (-not (Test-Path -LiteralPath $engine)) { throw 'Run tools/setup-godot.ps1 first, or set NEWCHESS_GODOT.' }
-$buildDir = Join-Path $repoDir 'dist'
-$exe = Join-Path $buildDir 'DreamChessII.exe'
 $reportDir = Join-Path $projectDir 'test-output'
 New-Item -ItemType Directory -Force -Path $reportDir | Out-Null
 Set-Content -LiteralPath (Join-Path $reportDir '.gdignore') -Value ''
@@ -91,30 +89,5 @@ switch ($Action) {
     'NetworkTest' { Invoke-NetworkTests }
     'Test' { Invoke-SceneTests }
     'Verify' { Invoke-RuleTests; Invoke-NetworkTests; Invoke-SceneTests }
-    'Export' {
-        if (Get-ProjectEditor) { throw 'Close the Godot editor before exporting to prevent external-project-file modal conflicts.' }
-        New-Item -ItemType Directory -Force -Path $buildDir | Out-Null
-        Invoke-CheckedEngine @('--headless','--path',$projectDir,'--export-release','Windows Desktop',$exe) 'export'
-        $noticePath = Join-Path $buildDir 'THIRD-PARTY-NOTICES.txt'
-        $notices = @('GODOT ENGINE', (Get-Content -Raw (Join-Path $projectDir 'assets\GODOT-LICENSE.txt')), 'ATKINSON HYPERLEGIBLE', (Get-Content -Raw (Join-Path $projectDir 'assets\fonts\Atkinson-OFL.txt')), 'KREFELD CONDENSED / RAILWAY 1901', (Get-Content -Raw (Join-Path $projectDir 'assets\fonts\Hypersalesman-NOTICE.txt')), 'GATSBY ROUGE (ARCHIVED)', 'Source: https://hypersalesman.com/folders/#font-139', (Get-Content -Raw (Join-Path $projectDir 'assets\fonts\GatsbyRouge-README.txt'))) -join "`r`n`r`n"
-        Set-Content -LiteralPath $noticePath -Value $notices -Encoding UTF8
-        Compress-Archive -LiteralPath @($exe,$noticePath) -DestinationPath (Join-Path $buildDir 'DreamChessII-Windows.zip') -Force
-        Write-Output "Ready to play: $exe"
-        Write-Output "Ready to share: $(Join-Path $buildDir 'DreamChessII-Windows.zip')"
-    }
-    'TestExport' {
-        if (-not (Test-Path -LiteralPath $exe)) { throw 'Export the game first.' }
-        $exportReports = Join-Path $reportDir 'export'
-        New-Item -ItemType Directory -Force -Path $exportReports | Out-Null
-        $oldEngine = $engine
-        $engine = $exe
-        try { Invoke-CheckedEngine @('--resolution','1920x1080','--','--self-test',"--test-output=$exportReports") 'release' 'SELF_TEST_PASS' }
-        finally { $engine = $oldEngine }
-    }
-    'PlayExport' {
-        if (-not (Test-Path -LiteralPath $exe)) { throw 'Export the game first.' }
-        $game = Start-Process -FilePath $exe -WorkingDirectory $buildDir -PassThru
-        Write-Output "Started Dream Chess II (PID $($game.Id)): $exe"
-    }
 }
 exit 0

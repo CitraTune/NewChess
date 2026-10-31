@@ -1,3 +1,5 @@
 {
-  "recommendations": ["geequlim.godot-tools", "vscjava.vscode-java-pack"]
+  "recommendations": [
+    "geequlim.godot-tools"
+  ]
 }

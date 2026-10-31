@@ -189,6 +189,20 @@ func _pattern(out: Array, p: Dictionary, type: String) -> void:
 			for dy in range(-radius,radius+1):
 				_put(out,p,p.pos+Vector2i(dx,dy),type not in ["goose","automaton","dropship"])
 
+func preview_moves(p: Dictionary) -> Array:
+	# Inspection is read-only. The other court is not subject to this turn's shots
+	# or bonus movement, but its own frozen, linked and forced-piece rules apply.
+	if p.is_empty() or p.side==turn: return legal_moves(p)
+	var view=ChessMatch.new(1,false)
+	view.record_history=false
+	view.restore(snapshot(false),false)
+	view.turn=int(p.side)
+	view.shots=0
+	view.shots_id=-1
+	view.bonus_id=-1
+	view.bonus_moves=0
+	return view.legal_moves(view.piece(p.id))
+
 func legal_moves(p: Dictionary) -> Array:
 	var out: Array = []
 	if p.is_empty() or winner != -1 or active(p,"frozen") or "kragle" in p.gear or shots > 0:
@@ -445,12 +459,11 @@ func _mystery(p: Dictionary) -> void:
 	reveals += 1
 	var event = "shop" if reveals == 1 else ("cards" if reveals == 2 else Catalog.data().tile_events[rng.randi_range(0,Catalog.data().tile_events.size()-1)])
 	var negative=event in ["election","freeze","hypnosis","bees","fog","love"]
-	note("Mystery: %s." % event.capitalize(),"mystery",{"pos":p.pos,"event":event,"positive":not negative})
+	note("The Bazaar awakens. Spend a turn to visit." if event=="shop" else "Mystery: %s." % event.capitalize(),"mystery",{"pos":p.pos,"event":event,"positive":not negative})
 	match event:
 		"shop":
 			market_unlocked = true
 			restock()
-			note("The Bazaar awakens. Spend a turn to visit.")
 		"cards":
 			cards_unlocked = true
 			ensure_card_tiles()

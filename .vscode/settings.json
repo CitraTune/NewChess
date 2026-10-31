@@ -1,9 +1,5 @@
-﻿{
-    "java.project.sourcePaths":  [
-                                     "dreams"
-                                 ],
-    "java.project.outputPath":  "bin",
-    "files.encoding":  "utf8",
-    "godotTools.lsp.serverPort":  6005,
-    "godotTools.editorPath.godot4":  "C:/Users/jtkea/AppData/Local/NewChess/tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe"
+{
+  "files.encoding": "utf8",
+  "godotTools.lsp.serverPort": 6005,
+  "godotTools.editorPath.godot4": "C:/Users/jtkea/AppData/Local/NewChess/tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe"
 }

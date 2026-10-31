@@ -8,8 +8,8 @@ var random=RandomNumberGenerator.new()
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
 	random.seed=41291
-	for i in range(10):
-		boards.append({"game":_position(),"pos":Vector2((i%5)*385-200,int(i/5)*460-80),"wait":random.randf_range(1,5),"motion":{},"t":1.0})
+	for i in range(15):
+		boards.append({"game":_position(),"pos":Vector2((i%5)*355-190+(int(i/5)%2)*65,int(i/5)*326-36),"wait":random.randf_range(1,5),"motion":{},"t":1.0})
 
 func _position() -> ChessMatch:
 	var game=ChessMatch.new(random.randi(),false)
@@ -25,7 +25,7 @@ func _process(delta: float) -> void:
 	if reduced_motion: return
 	for board in boards:
 		board.pos.x-=delta*8
-		if board.pos.x < -360: board.pos.x+=1925
+		if board.pos.x < -330: board.pos.x+=1775
 		board.wait-=delta
 		board.t=minf(1,board.t+delta*1.8)
 		if board.wait<=0:

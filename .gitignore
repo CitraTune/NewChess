@@ -1,42 +1,14 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+# Godot imports, editor state and local verification artifacts
+.godot/
+godot/test-output/
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
+# Machine-local IDE state; the shared Godot configurations are tracked
 .vscode/*
 !.vscode/settings.json
 !.vscode/launch.json
 !.vscode/tasks.json
 !.vscode/extensions.json
 
-### Java and browser verification ###
-*.class
-node_modules/
-dreams/test-output/
-
-### Godot generated data ###
-.godot/
-godot/test-output/
-
-### Mac OS ###
+__pycache__/
+*.pyc
 .DS_Store

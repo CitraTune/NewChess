@@ -1,4 +1,4 @@
-param([switch]$SkipTemplates)
+param([switch]$SkipEditorIntegration)
 
 # Portable, per-user Windows setup. Versions and download checksums are pinned.
 $ErrorActionPreference = 'Stop'
@@ -30,24 +30,6 @@ if (-not (Test-Path -LiteralPath $engine) -or -not (Test-Path -LiteralPath $guiE
     Expand-Archive -LiteralPath $engineZip -DestinationPath $engineDir -Force
 }
 
-if (-not $SkipTemplates) {
-    $templateDir = Join-Path $env:APPDATA 'Godot\export_templates\4.7.2.stable'
-    if (-not (Test-Path -LiteralPath (Join-Path $templateDir 'windows_release_x86_64.exe'))) {
-        # Official archive includes all platforms; install only the Windows x64 pair.
-        $templates = Get-VerifiedArchive 'Godot_v4.7.2-stable_export_templates.tpz' 'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011'
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
-        $archive = [System.IO.Compression.ZipFile]::OpenRead($templates)
-        try {
-            New-Item -ItemType Directory -Force -Path $templateDir | Out-Null
-            foreach ($entry in $archive.Entries) {
-                if ($entry.Name -in @('windows_debug_x86_64.exe', 'windows_release_x86_64.exe', 'version.txt')) {
-                    [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, (Join-Path $templateDir $entry.Name), $true)
-                }
-            }
-        } finally { $archive.Dispose() }
-    }
-}
-
 $vsSettingsPath = Join-Path $repoDir '.vscode\settings.json'
 $vsSettings = Get-Content -Raw -LiteralPath $vsSettingsPath | ConvertFrom-Json
 # godot-tools 2.7.1 truncates a path after an ${env:...} placeholder: use a full path.
@@ -63,7 +45,7 @@ foreach ($profile in $launchSettings.configurations) {
 $launchSettings | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $launchPath -Encoding UTF8
 
 $codeCommand = Get-Command code.cmd -ErrorAction SilentlyContinue
-if ($codeCommand) {
+if ($codeCommand -and -not $SkipEditorIntegration) {
     & $codeCommand.Source --install-extension geequlim.godot-tools
     if ($LASTEXITCODE -ne 0) { throw 'VS Code extension installation failed' }
 }
@@ -72,7 +54,7 @@ if ($codeCommand) {
 if ($LASTEXITCODE -ne 0) { throw 'Godot project import failed' }
 
 $editorSettingsPath = Join-Path $env:APPDATA 'Godot\editor_settings-4.7.tres'
-if ($codeCommand -and (Test-Path -LiteralPath $editorSettingsPath)) {
+if ($codeCommand -and -not $SkipEditorIntegration -and (Test-Path -LiteralPath $editorSettingsPath)) {
     $backup = Join-Path $engineDir 'editor-settings-before-setup.tres'
     if (-not (Test-Path -LiteralPath $backup)) { Copy-Item -LiteralPath $editorSettingsPath -Destination $backup }
     $editorSettings = Get-Content -Raw -LiteralPath $editorSettingsPath

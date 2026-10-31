@@ -9,7 +9,10 @@ func expect(value: bool, message: String) -> bool:
 	return value
 
 func click(app: Control, control: Control, pos: Vector2, double: bool = false) -> void:
+	# Resolve newly rebuilt controls' minimum sizes before targeting them.
+	await app.get_tree().process_frame
 	var global_pos=control.get_global_transform()*pos
+	await hover(app,global_pos)
 	for pressed in [true,false]:
 		var event=InputEventMouseButton.new()
 		event.button_index=MOUSE_BUTTON_LEFT
@@ -49,6 +52,108 @@ func check_layout(node: Node) -> void:
 		expect(node.size.x<=float(node.get_meta("max_width"))+1,"text exceeded its reserved width")
 	for child in node.get_children(): check_layout(child)
 
+func latest_interactions(app: Control, output: String) -> void:
+	app.start_game("hotseat",42)
+	var before=JSON.stringify(app.game.snapshot())
+	var enemy=app.game.at(Vector2i(6,0))
+	await click(app,app.board,app.board.square_center(enemy.pos))
+	expect(app._selected==enemy.id and Vector2i(5,2) in app.board.highlighted,"clicking an enemy pins its identity and previews its own potential moves")
+	app._square_hovered(Vector2i(4,4))
+	expect(app._selected==enemy.id and app.sidebar.get_children().any(func(n: Node) -> bool: return n is Label and n.text.contains("KNIGHT")),"enemy inspection survives moving the pointer away")
+	await click(app,app.board,app.board.square_center(Vector2i(5,2)))
+	expect(JSON.stringify(app.game.snapshot())==before,"clicking an opponent's move preview cannot command that piece or change RNG")
+	expect(not app.money_label.visible and not app.enemy_label.visible and not app._piece_description(app.game.at(Vector2i(4,0))).contains("$"),"the innocent board and piece descriptions conceal the economy")
+	app.game.ply=8
+	app._refresh()
+	expect(not app.screen.get_node("EndTurn").visible,"end turn early remains hidden through player turn nine")
+	app.game.ply=9
+	app._refresh()
+	expect(app.screen.get_node("EndTurn").visible and app.screen.get_node("EndTurn").text=="END TURN EARLY","end turn early appears on player turn ten")
+	# A real capture before the first discovery still earns a private bounty.
+	app.start_game("hotseat",91)
+	app.game.pieces.clear()
+	app.game.tiles.clear()
+	var rook=app.game.add_piece("rook",0,Vector2i(0,7))
+	app.game.add_piece("pawn",1,Vector2i(0,5))
+	app.game.add_piece("king",0,Vector2i(7,7))
+	var king=app.game.add_piece("king",1,Vector2i(7,0))
+	app.command({"op":"move","id":rook.id,"pos":Vector2i(0,5)})
+	expect(app.game.players[0].money==250 and not app.money_label.visible and not app.board.economy_visible,"pre-unlock captures accrue money without displaying it")
+	app._open_history()
+	expect(not app._history_panel.action_text(1).contains("$") and not app.money_label.visible,"Chronicle suppresses pre-unlock capture amounts")
+	app._close_history()
+	app.game.tiles["6,0"]={"type":"mystery"}
+	app.command({"op":"move","id":king.id,"pos":Vector2i(6,0)})
+	expect(app.money_label.visible and app.enemy_label.visible,"the first mystery reveals both treasuries")
+	var left=app.sidebar.get_node("PreviousMove")
+	var right=app.sidebar.get_node("NextMove")
+	var left_position=left.global_position
+	var right_position=right.global_position
+	expect(right.disabled and app.sidebar.get_node("OpenChronicle").size.y<60,"live Chronicle has a muted next arrow and a small title-only hover target")
+	await click(app,left,left.size/2)
+	if not expect(app._history_open and app._history_index==1,"live left arrow opens the preceding move directly (open %s, index %s)"%[app._history_open,app._history_index]):
+		await capture(app,output.path_join("failed-live-navigation.png"))
+		return
+	expect(app._history_panel.action_text(1).contains("+$50") and app._history_panel.action_text(2).count("Bazaar")==1,"unlock retroactively reveals bounties and labels the Bazaar discovery only once")
+	expect(app._history_panel.get_node("PreviousMove").global_position==left_position and app._history_panel.get_node("NextMove").global_position==right_position,"replay arrows retain their exact live positions")
+	await capture(app,output.path_join("replay-navigation-1080p.png"))
+	right=app._history_panel.get_node("NextMove")
+	await click(app,right,right.size/2)
+	expect(not app._history_open and app.sidebar.get_node("NextMove").disabled,"the next arrow reaching the latest move exits replay")
+	await key(app,KEY_LEFT)
+	expect(app._history_open and app._history_index==1,"left keyboard arrow also opens the prior move from live")
+	app._close_history()
+	# Landing on a marked tile delivers a fading card from the hand's right edge.
+	app.mode="solo"
+	app.game.cards_unlocked=true
+	app.game.ensure_card_tiles()
+	app.game.tiles.erase(app.game.tiles.keys().filter(func(k: String) -> bool: return app.game.tiles[k].type=="card_draw")[0])
+	app.game.tiles["0,4"]={"type":"card_draw"}
+	app._refresh()
+	await hover(app,Vector2(600,865))
+	app.command({"op":"move","id":rook.id,"pos":Vector2i(0,4)})
+	app._pause_menu()
+	await app.get_tree().create_timer(0.12).timeout
+	var drawn=app.hand.cards[0]
+	var arrival_x=drawn.position.x
+	expect(drawn.arrival>=0 and drawn.modulate.a>0 and drawn.modulate.a<1,"an actual draw slides and fades into the hand")
+	await capture(app,output.path_join("drawing-card-1080p.png"))
+	await app.get_tree().create_timer(0.8).timeout
+	expect(drawn.modulate.a==1 and drawn.position.x<arrival_x,"the drawn card finishes in its hand slot fully opaque")
+	app._close_overlay()
+	app.game.turn=0
+	app.game.players[0].hand.append({"id":"greed","born":app.game.ply})
+	app._refresh()
+	var retained=app.hand.cards[0]
+	app.command({"op":"card","index":1,"positions":[]})
+	expect(app.hand.cards[0]==retained and app.hand.cards[1].arrival>=0 and app.hand.cards[2].arrival>-1,"drawing multiple cards preserves existing card nodes and staggers new arrivals")
+	# Contact sheet verifies every card's original artwork at its actual face size.
+	var gallery=Control.new()
+	gallery.z_index=200
+	app.add_child(gallery)
+	var backdrop=ColorRect.new()
+	backdrop.color=CourtPalette.INK
+	backdrop.size=Vector2(1600,900)
+	gallery.add_child(backdrop)
+	var checksums=[]
+	for i in range(ChessCatalog.data().cards.size()):
+		var definition=ChessCatalog.data().cards[i]
+		var art=CourtPixels.texture(definition.id).get_image()
+		expect(art.get_width()==48 and art.get_height()==48,"dedicated detailed artwork: "+definition.id)
+		checksums.append(art.get_data().hex_encode().sha256_text())
+		var card=CourtPlayingCard.new()
+		card.definition=definition
+		card.size=Vector2(200,310)
+		card.position=Vector2(20+(i%7)*225,9+int(i/7)*290)
+		gallery.add_child(card)
+		card.scale=Vector2.ONE*0.85
+	var unique={}
+	for checksum in checksums: unique[checksum]=true
+	expect(unique.size()==21,"all 21 illustrations are distinct")
+	await capture(app,output.path_join("all-card-illustrations-1080p.png"))
+	app.remove_child(gallery)
+	gallery.queue_free()
+
 func run(app: Control) -> void:
 	var output="res://test-output"
 	for arg in OS.get_cmdline_user_args():
@@ -58,9 +163,10 @@ func run(app: Control) -> void:
 	var conveyor=app.screen.get_node("MenuChessConveyor")
 	var before_x=conveyor.boards[0].pos.x
 	await app.get_tree().create_timer(0.25).timeout
-	expect(conveyor.boards.size()==10 and conveyor.boards[0].pos.x<before_x,"menu chess boards drift along a conveyor")
+	expect(conveyor.boards.size()==15 and conveyor.boards[0].pos.x<before_x and conveyor.boards[10].pos.y<650,"three close rows of chess boards drift along a conveyor")
 	expect(app.screen.find_child("OpenArchive",true,false)==null and app.screen.find_child("OpenRules",true,false)==null,"main menu has no Archive or How to Play")
 	await capture(app,output.path_join("menu.png"))
+	await latest_interactions(app,output)
 	app.start_game("hotseat",42)
 	await app.get_tree().process_frame
 	var visit=app.screen.get_node("OpenShop")
@@ -77,13 +183,23 @@ func run(app: Control) -> void:
 	await click(app,app.board,app.board.square_center(Vector2i(1,5)))
 	expect(app.game.market_unlocked and visit.visible,"first hidden discovery reveals the Bazaar button")
 	expect(app.board._bursts.any(func(b: Dictionary) -> bool: return b.kind=="mystery"),"discovery starts a star burst")
-	await app.get_tree().create_timer(0.16).timeout
-	await capture(app,output.path_join("mystery-burst-1080p.png"))
-	await app.get_tree().create_timer(0.3).timeout
+	await app.get_tree().create_timer(0.32).timeout
+	await capture(app,output.path_join("mystery-white-stars-1080p.png"))
+	await app.get_tree().create_timer(0.34).timeout
+	await capture(app,output.path_join("mystery-green-stars-1080p.png"))
+	await app.get_tree().create_timer(0.26).timeout
+	expect(app.board._bursts.any(func(b: Dictionary) -> bool: return b.kind=="mystery"),"discovery sparkle outlasts the old short capture burst")
 	await click(app,app.board,app.board.square_center(Vector2i(1,1)))
 	await click(app,app.board,app.board.square_center(Vector2i(1,2)))
 	await app.get_tree().create_timer(0.4).timeout
 	expect(app.game.cards_unlocked and app.hand.cards.is_empty(),"card unlock creates marked tiles, not free cards")
+	# Separate outcome samples: never put the red test burst over a live green
+	# discovery. Real events choose one immutable positive/negative outcome.
+	await app.get_tree().create_timer(1.35).timeout
+	app.board.play([{"kind":"mystery","pos":Vector2i(1,2),"positive":false,"event":"freeze"}])
+	await app.get_tree().create_timer(0.65).timeout
+	await capture(app,output.path_join("mystery-red-stars-1080p.png"))
+	await app.get_tree().create_timer(1.2).timeout
 	var draw_tiles=app.game.tiles.keys().filter(func(k: String) -> bool: return app.game.tiles[k].type=="card_draw")
 	expect(draw_tiles.size()==3,"three visible draw markers appear")
 	await hover(app,Vector2(900,30))
@@ -205,7 +321,7 @@ func run(app: Control) -> void:
 	expect(panel.page==pinned_page,"A goes back one turn page")
 	expect(JSON.stringify(app.game.snapshot())==live,"replay navigation leaves live state intact")
 	app._close_history()
-	expect(visit.visible and app.screen.get_node("EndTurn").visible,"leaving replay restores available controls")
+	expect(visit.visible and app.screen.get_node("EndTurn").visible==(app.game.ply>=9),"leaving replay restores controls appropriate to the current turn")
 	await key(app,KEY_ESCAPE)
 	expect(app._overlay_kind=="pause" and app.overlay.get_child(1).size.x<800,"Escape opens compact pause")
 	await capture(app,output.path_join("pause-1080p.png"))

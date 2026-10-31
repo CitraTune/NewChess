@@ -127,6 +127,20 @@ func _test_tile_rules() -> void:
 func _run() -> void:
 	_test_hand_rules()
 	_test_tile_rules()
+	var inspection=fixture()
+	var opponent=inspection.at(Vector2i(3,2))
+	inspection.shots=1
+	inspection.bonus_id=inspection.at(Vector2i(3,5)).id
+	var inspection_before=JSON.stringify(inspection.snapshot())
+	expect(Vector2i(3,3) in inspection.preview_moves(opponent),"opponent preview ignores the acting court's current bonus and shot locks")
+	expect(JSON.stringify(inspection.snapshot())==inspection_before,"opponent preview leaves RNG, revision, turn and all live state unchanged")
+	opponent.status.frozen=inspection.ply+3
+	expect(inspection.preview_moves(opponent).is_empty(),"opponent preview respects its own frozen status")
+	opponent.status.clear()
+	var linked=inspection.at(Vector2i(5,2))
+	opponent.lasso=linked.id
+	expect(inspection.preview_moves(opponent).all(func(pos: Vector2i) -> bool: return ChessMatch.distance(pos,linked.pos)<=4),"opponent preview respects its own Lasso tether")
+	expect(inspection.preview_moves({}).is_empty(),"empty inspection has no potential moves")
 	var g = ChessMatch.new(42)
 	var history_game=ChessMatch.new(42)
 	var first_pawn=history_game.at(Vector2i(1,6)).id

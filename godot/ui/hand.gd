@@ -30,26 +30,46 @@ func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_PASS
 	set_process_input(true)
 
-func set_cards(definitions: Array, backs: bool = false) -> void:
+func set_cards(definitions: Array, backs: bool = false, animate_draws: bool = false) -> void:
 	opponent=backs
 	var signature=JSON.stringify(definitions)+str(backs)
 	if signature==_signature: return
 	_signature=signature
-	for card in cards:
-		remove_child(card)
-		card.queue_free()
+	var previous=cards.duplicate()
 	cards.clear()
 	hovered_index=-1
+	var arrivals=0
 	for d in definitions:
-		var card=CourtPlayingCard.new()
+		var key=str(d.get("_hand_key",d.get("id","hidden")))
+		var card: CourtPlayingCard
+		for old in previous:
+			if str(old.get_meta("hand_key",""))==key:
+				card=old
+				previous.erase(old)
+				break
+		var is_new=card==null
+		if is_new: card=CourtPlayingCard.new()
 		card.definition=d
 		card.face_down=backs
 		card.size=Vector2(200,310)
 		card.name="HandCard%d"%cards.size()
 		card.slot_number=-1 if backs else cards.size()+1
-		add_child(card)
+		card.set_meta("hand_key",key)
+		if is_new:
+			add_child(card)
+			if animate_draws:
+				card.arrival=-minf(arrivals*0.08,0.4)
+				arrivals+=1
+		elif not backs and card.get_child_count()>=3:
+			card.get_child(0).text=d.get("name","")
+			card.get_child(1).text=d.get("flavor","")
+			card.get_child(2).text=d.get("short",d.get("description",""))
 		cards.append(card)
-		_layout_card(cards.size()-1,true)
+		if is_new: _layout_card(cards.size()-1,true)
+	for old in previous:
+		remove_child(old)
+		old.queue_free()
+	for i in range(cards.size()): move_child(cards[i],i)
 
 func _has_point(point: Vector2) -> bool:
 	return card_at(point)>=0 or (not opponent and not cards.is_empty() and Rect2(0,810,size.x,90).has_point(point))
@@ -74,6 +94,9 @@ func _process(delta: float) -> void:
 	expanded=move_toward(expanded,1.0 if observing else 0.0,delta*(5.5 if observing else 3.4))
 	for i in range(cards.size()):
 		cards[i].press_amount=move_toward(cards[i].press_amount,0,delta*5)
+		if cards[i].arrival>-1:
+			cards[i].arrival+=delta/(0.12 if reduced_motion else 0.65)
+			if cards[i].arrival>=1: cards[i].arrival=-1
 		_layout_card(i,false,delta)
 
 func _input(event: InputEvent) -> void:
@@ -106,6 +129,13 @@ func _layout_card(index: int, instant: bool, delta: float = 0.0) -> void:
 	card.z_index=30 if is_hovered else index
 	card.hover_amount=1 if is_hovered else 0
 	var target_scale=Vector2.ONE*((1.035 if is_hovered and not opponent else 1.0)-card.press_amount*0.045)
+	if card.arrival>-1:
+		var progress=clampf(card.arrival,0,1)
+		var remaining=pow(1-progress,3)
+		target+=Vector2(190,-18)*remaining
+		angle+=0.12*remaining
+		card.modulate.a=smoothstep(0,0.85,progress)
+	else: card.modulate.a=1
 	var blend=1.0 if instant or reduced_motion else 1-exp(-delta*15)
 	card.position=card.position.lerp(target,blend)
 	card.rotation=lerp_angle(card.rotation,angle,blend)
