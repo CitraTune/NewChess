@@ -26,6 +26,9 @@ was rebuilt. Older dist/ files predate the current name and rules.
   copy from the previous application directory without changing originals.
 - Screenshots and logs are under ignored godot/test-output/. No caches, renderer
   downloads or test artifacts belong in commits.
+- After the desktop was unlocked, the running main menu, settings, migrated save,
+  replay watermark/hidden controls and compact pause menu were reviewed directly.
+  This caught and corrected decimal rank labels from JSON-restored board sizes.
 
 An older Windows audio shutdown can warn about AudioStreamWAV playback references;
 this is the previously documented engine cleanup issue, not a failed gameplay

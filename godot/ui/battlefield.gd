@@ -195,7 +195,7 @@ func _draw() -> void:
 			var x = 24+(i+0.5)*(size.x-48)/game.board_size
 			if game.board_size==8 or i%2==0:
 				draw_string(CourtPalette.BOLD,Vector2(x-5,size.y-7),char(97+coord),HORIZONTAL_ALIGNMENT_LEFT,25,15,CourtPalette.MUTED)
-				draw_string(CourtPalette.BOLD,Vector2(5,x+5),str(game.board_size-coord),HORIZONTAL_ALIGNMENT_LEFT,22,15,CourtPalette.MUTED)
+				draw_string(CourtPalette.BOLD,Vector2(5,x+5),str(int(game.board_size-coord)),HORIZONTAL_ALIGNMENT_LEFT,22,15,CourtPalette.MUTED)
 
 func _draw_discovery(burst: Dictionary, cell: float) -> void:
 	var center=square_center(burst.pos)
